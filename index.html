@@ -1,0 +1,2662 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onde no mundo está Flavitcho?</title>
+<meta name="description" content="Jogo de investigação internacional fictício e satírico: ajude o agente Lula a rastrear Flavitcho pelo mundo.">
+<style>
+:root{
+  --navy-900:#060d1f; --navy-800:#0a1530; --navy-700:#0f1f45; --navy-600:#16295a; --navy-500:#1f3a7a;
+  --sky:#4fc3f7; --sky-dim:#2a8bbf; --red:#e53935; --red-dark:#a3201d; --green:#43c472; --green-dark:#23864a;
+  --gold:#f2c14e; --gold-dark:#b8862b; --white:#f4f7fb; --gray:#b8c2d6; --gray-dim:#7d89a3;
+  --paper:#f5ecd7; --paper-ink:#2b2418;
+  --radius:12px; --shadow:0 8px 24px rgba(0,0,0,.45);
+  --font:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-title:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  --font-doc:"Courier New",Courier,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--navy-900);color:var(--white);font-family:var(--font);font-size:16px;line-height:1.45;min-height:100vh;
+  background-image:radial-gradient(circle at 20% 0%,#132a5e 0,transparent 55%),radial-gradient(circle at 100% 100%,#1a1240 0,transparent 50%);background-attachment:fixed}
+button{font-family:inherit}
+a{color:var(--sky)}
+.hidden{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* ---------- Botões ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;border:1px solid #2d4a8f;background:linear-gradient(#1b3470,#132653);color:var(--white);
+  padding:.65em 1.1em;border-radius:8px;font-size:.95rem;font-weight:600;cursor:pointer;transition:transform .12s,background .2s,border-color .2s;text-decoration:none}
+.btn:hover{border-color:var(--sky);transform:translateY(-1px)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled],.btn.is-disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-primary{background:linear-gradient(#2fa45d,#1f7a43);border-color:#47d07f}
+.btn-danger{background:linear-gradient(#c62d2a,#8f1b19);border-color:#ff6b67}
+.btn-gold{background:linear-gradient(#d9a531,#9c6f17);border-color:var(--gold);color:#1b1305}
+.btn-ghost{background:transparent}
+.btn-sm{padding:.4em .75em;font-size:.85rem}
+.btn-lg{padding:.85em 1.6em;font-size:1.1rem}
+
+/* ---------- Telas ---------- */
+.screen{min-height:100vh}
+.panel{background:linear-gradient(180deg,rgba(22,41,90,.92),rgba(10,21,48,.95));border:1px solid #27447f;border-radius:var(--radius);box-shadow:var(--shadow)}
+.panel-title{margin:0;padding:.6em 1em;font-size:.95rem;letter-spacing:.08em;text-transform:uppercase;color:var(--white);border-bottom:1px solid #27447f;background:rgba(0,0,0,.18);border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;gap:.5em}
+.panel-body{padding:1em}
+
+/* ---------- Tela inicial ---------- */
+#screen-title{display:flex;align-items:center;justify-content:center;padding:24px 16px;position:relative;overflow:hidden}
+.title-bg{position:absolute;inset:0;opacity:.22;pointer-events:none}
+.title-bg svg{width:100%;height:100%}
+.title-card{position:relative;max-width:1100px;width:100%;display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:28px;align-items:center}
+.title-lula{position:relative;aspect-ratio:200/230;max-width:340px;width:100%;margin:auto;filter:drop-shadow(0 12px 30px rgba(0,0,0,.6))}
+.title-lula .globe{position:absolute;top:-8%;left:18%;width:64%;opacity:.55;z-index:0}
+.title-lula > svg{position:relative;z-index:1}
+.game-title{font-family:var(--font-title);margin:0;line-height:1;text-shadow:0 4px 0 rgba(0,0,0,.45)}
+.game-title .t1{display:block;font-size:clamp(1.5rem,3.6vw,2.6rem);font-style:italic;color:var(--white)}
+.game-title .t2{display:block;font-size:clamp(2.8rem,8vw,5.6rem);font-style:italic;font-weight:900;color:var(--red);letter-spacing:-.02em;transform:rotate(-3deg);transform-origin:left;margin-top:.1em}
+.title-story{max-width:560px;color:var(--gray);margin:1.2em 0}
+.title-buttons{display:flex;flex-wrap:wrap;gap:12px}
+.title-disclaimer{margin-top:1.4em;font-size:.8rem;color:var(--gray-dim);max-width:600px}
+.storage-warning{margin-top:10px;font-size:.85rem;color:var(--gold)}
+
+/* ---------- Briefing ---------- */
+#screen-briefing{display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.briefing{max-width:1000px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.dossier{background:var(--paper);color:var(--paper-ink);border-radius:6px;padding:20px;position:relative;box-shadow:var(--shadow);font-family:var(--font-doc)}
+.dossier h3{margin:0 0 .4em;font-family:var(--font-title);letter-spacing:.05em}
+.dossier .stamp{position:absolute;top:16px;right:16px;border:3px solid var(--red);color:var(--red);padding:2px 10px;font-weight:900;transform:rotate(8deg);font-family:var(--font-title);letter-spacing:.1em;opacity:.85}
+.dossier dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:.9rem}
+.dossier dt{font-weight:700}
+.dossier dd{margin:0}
+.dossier-portrait{width:120px;margin:0 0 12px;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);background:#cfd8e6}
+
+/* ---------- Central (hub) ---------- */
+#screen-hub{padding:12px;max-width:1400px;margin:0 auto}
+.topbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 14px;margin-bottom:12px}
+.brand{font-family:var(--font-title);font-style:italic;font-weight:900;font-size:1.15rem;line-height:1}
+.brand b{color:var(--red)}
+.stat{display:flex;flex-direction:column;font-size:.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em}
+.stat strong{color:var(--white);font-size:1rem;letter-spacing:0;text-transform:none}
+.stat.time strong{color:var(--gold)}
+.stat.time.low strong{color:var(--red);animation:pulse 1.2s infinite}
+.progress{flex:1;min-width:160px}
+.progress-bar{height:10px;border-radius:5px;background:#0b1430;border:1px solid #27447f;overflow:hidden;margin-top:4px}
+.progress-bar span{display:block;height:100%;background:linear-gradient(90deg,var(--sky),var(--green));transition:width .6s}
+.topbar .spacer{flex:1}
+.hub-grid{display:grid;grid-template-columns:minmax(300px,1.05fr) 1.25fr;gap:12px}
+.city-photo{position:relative;aspect-ratio:16/9;overflow:hidden;border-radius:8px;background:#0b1430}
+.city-photo img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block}
+.city-photo .fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:12px;color:var(--white);background:linear-gradient(135deg,var(--navy-600),var(--navy-800))}
+.city-photo .fallback svg{width:60%;max-width:260px;opacity:.85}
+.city-photo .credit{z-index:2;position:absolute;right:0;bottom:0;background:rgba(0,0,0,.6);font-size:.65rem;padding:2px 6px;border-top-left-radius:6px;color:#ddd}
+.city-photo .credit a{color:#cde}
+.city-head{display:flex;align-items:center;gap:10px;margin:.8em 0 .4em}
+.city-head h2{margin:0;font-size:1.5rem}
+.city-head .country{color:var(--gray)}
+.flag{width:36px;height:24px;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.25);flex:none;display:inline-block;vertical-align:middle}
+.flag svg{width:100%;height:100%;display:block;border-radius:3px}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px;font-size:.88rem;margin:.6em 0}
+.facts div span{display:block;color:var(--gray-dim);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+.city-desc{color:var(--gray);font-size:.92rem}
+.landmarks{display:flex;flex-wrap:wrap;gap:6px;margin-top:.5em}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:.78rem;background:#13285a;border:1px solid #2d4a8f;color:var(--white)}
+.chip.gold{border-color:var(--gold);color:var(--gold)}
+.chip.green{border-color:var(--green);color:var(--green)}
+.chip.red{border-color:var(--red);color:#ff8a87}
+.chip.sky{border-color:var(--sky);color:var(--sky)}
+.chip.gray{border-color:#4a5a7d;color:var(--gray)}
+
+/* Lula dialog */
+.dialog{display:flex;gap:12px;align-items:flex-start}
+.dialog .avatar{width:92px;flex:none}
+.dialog .avatar svg{width:100%;height:auto;display:block}
+.bubble{position:relative;background:#f4f7fb;color:#13203f;padding:.8em 1em;border-radius:12px;font-size:.98rem;box-shadow:0 4px 12px rgba(0,0,0,.35);flex:1;min-height:70px}
+.bubble::before{content:"";position:absolute;left:-10px;top:22px;border:10px solid transparent;border-right-color:#f4f7fb;border-left:0}
+.bubble .speaker{display:block;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--red-dark);margin-bottom:2px}
+.bubble.anim{animation:pop .35s ease}
+.actions{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:14px 0}
+.action{display:flex;align-items:center;gap:10px;text-align:left;padding:.75em .8em;border-radius:10px;border:1px solid #2d4a8f;background:linear-gradient(#183065,#10234c);color:var(--white);cursor:pointer;font-size:.9rem;font-weight:600;transition:border-color .2s,transform .12s;position:relative}
+.action:hover{border-color:var(--sky);transform:translateY(-2px)}
+.action .ico{font-size:1.35rem;width:30px;text-align:center;flex:none}
+.action small{display:block;font-weight:400;color:var(--gray);font-size:.72rem}
+.action.warrant{border-color:var(--gold-dark)}
+.action.capture{border-color:var(--red-dark)}
+.action .badge{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;font-size:.7rem;border-radius:999px;padding:1px 7px;font-weight:800}
+.recent{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.recent li{padding:.55em .8em;border-left:3px solid var(--sky);background:rgba(255,255,255,.04);border-radius:0 8px 8px 0;font-size:.88rem}
+.recent li .meta{display:block;color:var(--gray-dim);font-size:.72rem}
+.status-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+
+/* ---------- Modal ---------- */
+.modal-backdrop{position:fixed;inset:0;background:rgba(3,7,18,.78);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;animation:fade .2s}
+.modal{width:min(1080px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;animation:rise .25s ease}
+.modal.narrow{width:min(560px,100%)}
+.modal-head{display:flex;align-items:center;gap:10px;padding:.7em 1em;border-bottom:1px solid #27447f;background:rgba(0,0,0,.2);border-radius:var(--radius) var(--radius) 0 0}
+.modal-head h2{margin:0;font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;flex:1}
+.modal-body{padding:1em;overflow:auto}
+.modal-foot{padding:.7em 1em;border-top:1px solid #27447f;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.close-x{background:none;border:1px solid #2d4a8f;color:var(--white);border-radius:8px;width:36px;height:36px;font-size:1.2rem;cursor:pointer}
+
+/* listas genéricas */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.card{background:rgba(255,255,255,.04);border:1px solid #27447f;border-radius:10px;padding:.9em;display:flex;flex-direction:column;gap:.5em}
+.card h3{margin:0;font-size:1rem;display:flex;align-items:center;gap:8px}
+.card p{margin:0;color:var(--gray);font-size:.88rem}
+.card.done{opacity:.75}
+.card .card-foot{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.result-box{margin-top:14px}
+
+/* Interrogatório */
+.interro{display:grid;grid-template-columns:220px 1fr;gap:16px}
+.witness-card{text-align:center}
+.witness-card svg{width:150px;height:auto;border-radius:12px;background:#0b1430}
+.chat{display:flex;flex-direction:column;gap:10px;max-height:46vh;overflow:auto;padding-right:4px}
+.msg{padding:.6em .9em;border-radius:10px;max-width:92%;font-size:.93rem}
+.msg.q{align-self:flex-end;background:#1f3a7a;border:1px solid #2d4a8f}
+.msg.a{align-self:flex-start;background:#f4f7fb;color:#13203f}
+.msg.a .who{display:block;font-size:.7rem;font-weight:800;text-transform:uppercase;color:#1f3a7a}
+.msg.clue{border-left:4px solid var(--green)}
+.questions{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.questions .btn{justify-content:flex-start;text-align:left}
+.questions .btn.asked{opacity:.65}
+
+/* Documentos */
+.doc-paper{background:var(--paper);color:var(--paper-ink);font-family:var(--font-doc);padding:22px 24px;border-radius:4px;position:relative;box-shadow:inset 0 0 40px rgba(120,90,30,.25),var(--shadow);max-width:760px;margin:0 auto}
+.doc-paper::after{content:"";position:absolute;inset:8px;border:1px dashed rgba(60,40,10,.25);pointer-events:none}
+.doc-paper h3{font-family:var(--font-title);margin:0 0 4px;text-transform:uppercase;letter-spacing:.06em}
+.doc-paper .doc-sub{font-size:.8rem;margin-bottom:12px;color:#6b5a3c}
+.doc-paper table{width:100%;border-collapse:collapse;font-size:.85rem;margin:8px 0}
+.doc-paper th,.doc-paper td{border-bottom:1px solid rgba(60,40,10,.25);padding:4px 6px;text-align:left;vertical-align:top}
+.doc-paper th{background:rgba(60,40,10,.08)}
+.doc-paper .hl{background:rgba(242,193,78,.55);padding:0 3px}
+.doc-paper .note{margin-top:10px;font-size:.85rem;font-style:italic}
+.doc-paper .doc-stamp{position:absolute;right:22px;top:18px;border:3px solid var(--red);color:var(--red);font-family:var(--font-title);font-weight:900;padding:2px 8px;transform:rotate(-8deg);letter-spacing:.1em;opacity:.8}
+.doc-paper.ticket{background:#e9f1fb}
+.doc-paper.bank{background:#eef3ea}
+.doc-tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
+
+/* Pistas */
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.filters .btn.active{border-color:var(--gold);color:var(--gold)}
+.clue-card{border-left:4px solid var(--sky)}
+.clue-card.st-nova{border-left-color:var(--gold)}
+.clue-card.st-analisada{border-left-color:var(--sky)}
+.clue-card.st-confirmada{border-left-color:var(--green)}
+.clue-card.st-inconclusiva{border-left-color:var(--gray-dim)}
+.clue-meta{font-size:.74rem;color:var(--gray-dim)}
+
+/* Banco de dados */
+.db-grid{display:grid;grid-template-columns:260px 1fr;gap:16px}
+.trait-list{display:flex;flex-direction:column;gap:6px}
+.trait{display:flex;align-items:center;gap:8px;font-size:.88rem;padding:.35em .6em;border-radius:8px;border:1px solid #27447f;background:rgba(255,255,255,.03);cursor:pointer}
+.trait input{accent-color:var(--gold)}
+.trait.reported{border-color:var(--green)}
+.suspect{display:grid;grid-template-columns:110px 1fr;gap:12px}
+.suspect svg{width:110px;height:auto;border-radius:10px;background:#0b1430}
+.suspect.dim{opacity:.4}
+.suspect dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0;font-size:.8rem}
+.suspect dt{color:var(--gray-dim)}
+.suspect dd{margin:0}
+.match{font-weight:800}
+
+/* Mapa */
+.map-wrap{display:grid;grid-template-columns:1fr 280px;gap:14px}
+.map-box{position:relative;background:radial-gradient(ellipse at center,#123063,#081536);border:1px solid #27447f;border-radius:10px;overflow:hidden}
+.map-box svg{width:100%;height:auto;display:block}
+.land{fill:#2f6b4f;stroke:#4f9a72;stroke-width:.6}
+.gridline{stroke:rgba(79,195,247,.12);stroke-width:.6;fill:none}
+.marker{cursor:pointer}
+.marker circle.dot{stroke:#fff;stroke-width:1.4}
+.marker text{font-size:11px;fill:#fff;paint-order:stroke;stroke:#061028;stroke-width:3px;font-weight:700;pointer-events:none}
+.marker:focus{outline:none}
+.marker:focus circle.dot,.marker:hover circle.dot{stroke:var(--gold);stroke-width:2.5}
+.marker.current circle.dot{fill:var(--gold)}
+.marker.visited circle.dot{fill:var(--green)}
+.marker.unvisited circle.dot{fill:#7d89a3}
+.marker.selected circle.dot{stroke:var(--gold);stroke-width:3}
+.ring-clue{fill:none;stroke:var(--sky);stroke-width:2;stroke-dasharray:3 3}
+.ring-final{fill:none;stroke:var(--red);stroke-width:2.5}
+.ring-current{fill:none;stroke:var(--gold);stroke-width:2;animation:ring 1.6s infinite;transform-box:fill-box;transform-origin:center}
+.route{stroke:var(--gold);stroke-width:1.5;fill:none;stroke-dasharray:4 4;opacity:.7}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.78rem;color:var(--gray);margin-top:8px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.city-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:52vh;overflow:auto}
+.city-list button{width:100%;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid #27447f;color:var(--white);padding:.45em .6em;border-radius:8px;cursor:pointer;font-size:.88rem;text-align:left}
+.city-list button:hover,.city-list button.selected{border-color:var(--gold)}
+.city-list .flag{width:24px;height:16px}
+.city-list .tag{margin-left:auto;font-size:.7rem;color:var(--gray-dim)}
+.dest-card{margin-top:12px}
+
+/* Viagem overlay */
+.travel-overlay{position:fixed;inset:0;z-index:80;background:rgba(3,7,18,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:16px;text-align:center}
+.travel-overlay .plane-track{width:min(560px,90vw);height:80px;position:relative;border-bottom:2px dashed var(--sky)}
+.travel-overlay .plane{position:absolute;bottom:6px;left:0;font-size:2.6rem;animation:fly 1.6s ease-in-out forwards}
+
+/* Mandado */
+.warrant-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:16px}
+.req{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.req li{display:flex;gap:10px;align-items:flex-start;padding:.5em .7em;border-radius:8px;background:rgba(255,255,255,.04);font-size:.88rem}
+.req li .ok{color:var(--green);font-weight:900}
+.req li .no{color:var(--red);font-weight:900}
+.form-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.form-row label,.form-row legend{font-size:.8rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em}
+select,input[type=text]{background:#0b1430;color:var(--white);border:1px solid #2d4a8f;border-radius:8px;padding:.55em .6em;font-size:.92rem;font-family:inherit}
+fieldset{border:1px solid #27447f;border-radius:8px;padding:.6em .8em;margin:0 0 12px}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:.86rem;margin:4px 0}
+.warrant-doc .big{font-size:1.4rem;font-weight:900;font-family:var(--font-title);letter-spacing:.08em;text-align:center;margin:6px 0 12px}
+
+/* Diário */
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.timeline li{display:grid;grid-template-columns:120px 1fr;gap:10px;padding:.5em .7em;background:rgba(255,255,255,.03);border-radius:8px;border-left:3px solid var(--sky);font-size:.88rem}
+.timeline li .when{color:var(--gray-dim);font-size:.75rem}
+.timeline li.t-pista{border-left-color:var(--green)}
+.timeline li.t-documento{border-left-color:var(--gold)}
+.timeline li.t-viagem{border-left-color:var(--sky)}
+.timeline li.t-alerta,.timeline li.t-captura{border-left-color:var(--red)}
+.timeline .type{font-weight:800;text-transform:uppercase;font-size:.7rem;letter-spacing:.06em;color:var(--gray)}
+
+/* Fim */
+#screen-end{display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.end-card{max-width:1000px;width:100%;padding:24px}
+.end-head{display:grid;grid-template-columns:200px 1fr 200px;gap:16px;align-items:center;text-align:center}
+.end-head svg{width:100%;height:auto}
+.end-title{font-family:var(--font-title);font-size:clamp(1.8rem,5vw,3rem);margin:0;font-style:italic}
+.end-title.win{color:var(--green)}
+.end-title.lose{color:var(--red)}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:18px 0}
+.stats div{background:rgba(255,255,255,.05);border:1px solid #27447f;border-radius:10px;padding:.7em;text-align:center}
+.stats b{display:block;font-size:1.6rem;color:var(--gold)}
+.stats span{font-size:.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em}
+.rank{text-align:center;font-size:1.2rem;margin:10px 0}
+.rank b{color:var(--gold)}
+.fiction-note{font-size:.8rem;color:var(--gray-dim);text-align:center;margin-top:16px}
+.end-buttons{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;font-size:.85rem}
+.flow span.node{background:#13285a;border:1px solid var(--gold-dark);border-radius:8px;padding:4px 8px}
+
+/* Ajuda */
+.help-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.help-grid .card h3 .ico{font-size:1.3rem}
+
+/* Toast */
+#toasts{position:fixed;bottom:16px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:100;max-width:min(380px,calc(100vw - 32px))}
+.toast{background:var(--navy-700);border:1px solid var(--sky);border-left:5px solid var(--sky);padding:.7em 1em;border-radius:8px;box-shadow:var(--shadow);font-size:.9rem;animation:rise .25s}
+.toast.good{border-left-color:var(--green);border-color:var(--green)}
+.toast.bad{border-left-color:var(--red);border-color:var(--red)}
+.toast.gold{border-left-color:var(--gold);border-color:var(--gold)}
+
+/* Animações */
+@keyframes pulse{50%{opacity:.55}}
+@keyframes pop{0%{transform:scale(.96);opacity:.4}100%{transform:scale(1);opacity:1}}
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{transform:translateY(12px);opacity:0}}
+@keyframes fly{from{left:0}to{left:calc(100% - 3rem)}}
+@keyframes ring{0%{transform:scale(1);opacity:1}100%{transform:scale(2.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Responsivo */
+@media (max-width:900px){
+  .hub-grid,.briefing,.map-wrap,.warrant-grid,.db-grid{grid-template-columns:1fr}
+  .title-card{grid-template-columns:1fr;text-align:center}
+  .title-buttons{justify-content:center}
+  .title-story,.title-disclaimer{margin-left:auto;margin-right:auto}
+  .title-lula{max-width:220px}
+  .end-head{grid-template-columns:1fr 1fr}
+  .end-head > div:nth-child(2){grid-column:1 / -1;order:-1}
+}
+@media (max-width:640px){
+  body{font-size:15px}
+  #screen-hub{padding:8px}
+  .modal-backdrop{padding:0}
+  .modal{max-height:100vh;height:100vh;border-radius:0}
+  .interro{grid-template-columns:1fr}
+  .witness-card svg{width:110px}
+  .dialog .avatar{width:64px}
+  .actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .timeline li{grid-template-columns:1fr}
+  .suspect{grid-template-columns:80px 1fr}
+  .suspect svg{width:80px}
+  .facts{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<a href="#main" class="sr-only">Pular para o conteúdo</a>
+<main id="main">
+
+<!-- TELA INICIAL -->
+<section id="screen-title" class="screen" aria-labelledby="game-title">
+  <div class="title-bg" id="title-bg" aria-hidden="true"></div>
+  <div class="title-card">
+    <div class="title-lula" id="title-lula" role="img" aria-label="Ilustração do agente Lula, senhor de barba grisalha, chapéu e sobretudo de detetive"></div>
+    <div>
+      <h1 class="game-title" id="game-title"><span class="t1">Onde no mundo está</span><span class="t2">Flavitcho?</span></h1>
+      <p class="title-story">Milhões em recursos públicos sumiram em contratos fictícios, empresas de fachada e contas no exterior.
+        O político <strong>Flavitcho Silva</strong> fugiu do país antes de ser preso. Junte-se ao experiente <strong>agente Lula</strong>,
+        siga o rastro do dinheiro pelo mundo, interrogue testemunhas, examine documentos e capture o fugitivo antes que o prazo de 10 dias acabe.</p>
+      <div class="title-buttons">
+        <button class="btn btn-primary btn-lg" data-action="new-case">▶ Iniciar investigação</button>
+        <button class="btn btn-gold btn-lg hidden" id="btn-continue" data-action="continue">↻ Continuar investigação</button>
+        <button class="btn btn-lg" data-action="help">? Como jogar</button>
+        <button class="btn btn-ghost" data-action="credits">Créditos</button>
+      </div>
+      <p class="storage-warning hidden" id="storage-warning">⚠ O salvamento automático não está disponível neste navegador. O jogo funciona normalmente, mas o progresso se perde ao fechar a página.</p>
+      <p class="title-disclaimer">Obra de ficção e sátira. Personagens, empresas, documentos e acontecimentos são inventados; qualquer semelhança com pessoas ou fatos reais é coincidência e não constitui acusação a ninguém.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BRIEFING -->
+<section id="screen-briefing" class="screen hidden" aria-labelledby="briefing-title">
+  <div class="briefing">
+    <div class="panel">
+      <h2 class="panel-title" id="briefing-title">🕵 Início da investigação</h2>
+      <div class="panel-body" id="briefing-lula"></div>
+    </div>
+    <div class="dossier" id="briefing-dossier"></div>
+    <div style="grid-column:1/-1;text-align:center">
+      <button class="btn btn-primary btn-lg" data-action="go-hub">Ir para a central de investigação ➜</button>
+    </div>
+  </div>
+</section>
+
+<!-- CENTRAL -->
+<section id="screen-hub" class="screen hidden" aria-label="Central de investigação">
+  <header class="topbar panel" id="topbar"></header>
+  <div class="hub-grid">
+    <section class="panel" aria-labelledby="city-title">
+      <h2 class="panel-title" id="city-title">📍 Localização atual</h2>
+      <div class="panel-body" id="city-panel"></div>
+    </section>
+    <section class="panel" aria-labelledby="ops-title">
+      <h2 class="panel-title" id="ops-title">🗂 Central de investigação</h2>
+      <div class="panel-body">
+        <div class="dialog" id="lula-dialog" aria-live="polite"></div>
+        <div class="actions" id="actions"></div>
+        <h3 style="margin:.4em 0 .6em;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gray)">Últimas descobertas</h3>
+        <ul class="recent" id="recent"></ul>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- FIM -->
+<section id="screen-end" class="screen hidden" aria-live="polite">
+  <div class="end-card panel" id="end-card"></div>
+</section>
+</main>
+
+<div id="modal-root"></div>
+<div id="toasts" aria-live="polite"></div>
+<script>
+"use strict";
+/* =====================================================================
+   ONDE NO MUNDO ESTÁ FLAVITCHO?  — obra de ficção e sátira.
+   Todos os personagens, empresas, documentos e operações são inventados.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   DADOS DO CASO (solução previamente definida)
+   Trilha: Nova York → Londres → Istambul → Tel Aviv → Tóquio → Sydney
+   Caminho do dinheiro: Contrato "Ponte da Integração" → Brisa Offshore (NY)
+   → Thames Meridian (Londres) → Lagosta Azul / ouro (Istambul)
+   → BlockLagosta / LagostaCoin (Tel Aviv) → Kintsugi Exchange (Tóquio)
+   → Maré Mansa Holdings / iate (Sydney)
+   --------------------------------------------------------------------- */
+const CASE = {
+  id: "FLV-2031-0087",
+  title: "Operação Ponte Fantasma",
+  startCity: "ny",
+  trail: ["ny", "london", "istanbul", "telaviv", "tokyo", "sydney"],
+  finalCity: "sydney",
+  hideoutClue: "syd_esconderijo",
+  culprit: "flavitcho",
+  totalHours: 240,          // 10 dias
+  startHour: 8,             // Dia 1, 08:00
+  baseDate: [2031, 2, 3],   // 03/03/2031 (data fictícia)
+  correctCrime: "desvio",
+  costs: { investigate: 3, interrogate: 2, examine: 1, wrongId: 2, idCheck: 1, captureFail: 2, warrantFail: 1 },
+  warrantReq: { financialDocs: 3, confirmedClues: 4, selectedEvidence: 3 },
+  idReq: { descriptionClues: 2 }
+};
+
+/* ---------------------------------------------------------------------
+   IMAGENS (Wikimedia Commons, miniaturas de 960 px, URLs verificadas)
+   --------------------------------------------------------------------- */
+const WM = "https://upload.wikimedia.org/wikipedia/commons/thumb/";
+
+/* ---------------------------------------------------------------------
+   CIDADES
+   --------------------------------------------------------------------- */
+const CITIES = {
+  ny: {
+    name: "Nova York", country: "Estados Unidos", flag: "us", region: "América do Norte",
+    lat: 40.71, lon: -74.0, label: [8, -8],
+    languages: "Inglês (e dezenas de outros idiomas)", currency: "Dólar americano (USD)",
+    population: "≈ 8,3 milhões (cidade)", airport: "John F. Kennedy (JFK)",
+    landmarks: ["Estátua da Liberdade", "Times Square", "Central Park", "Wall Street"],
+    desc: "Maior cidade dos EUA, à beira do Atlântico, na foz do rio Hudson. Centro financeiro global, com Wall Street em Lower Manhattan e cinco distritos que reúnem gente de todo o planeta.",
+    image: { src: WM + "8/8c/New_York_City_%28New_York%2C_USA%29%2C_Statue_of_Liberty_--_2012_--_6660.jpg/960px-New_York_City_%28New_York%2C_USA%29%2C_Statue_of_Liberty_--_2012_--_6660.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:New_York_City_(New_York,_USA),_Statue_of_Liberty_--_2012_--_6660.jpg",
+      author: "Dietmar Rabich", license: "CC BY-SA 4.0", alt: "Estátua da Liberdade, em Nova York, vista da água" },
+    locations: [
+      { id: "hotel", icon: "🏨", name: "Hotel Gramercy Imperial", kind: "Hotel",
+        text: "O gerente abre o livro de hóspedes da suíte 2104 e mostra as imagens das câmeras do elevador.",
+        finds: [{ clue: "ny_hotel" }, { witness: "ny_dolores" }] },
+      { id: "wall", icon: "🏦", name: "Escritório da Brisa Offshore — Wall Street", kind: "Centro financeiro",
+        text: "Uma sala vazia no 31º andar: só uma mesa, um vaso de planta de plástico e uma pasta de auditoria esquecida.",
+        finds: [{ doc: "doc_ny_contrato" }] },
+      { id: "jfk", icon: "✈", name: "Aeroporto JFK — Terminal internacional", kind: "Aeroporto",
+        text: "A segurança do aeroporto separou o lixo do portão de embarque onde o suspeito foi filmado.",
+        finds: [{ doc: "doc_ny_voo" }, { witness: "ny_rafa" }] }
+    ]
+  },
+  la: {
+    name: "Los Angeles", country: "Estados Unidos", flag: "us", region: "América do Norte",
+    lat: 34.05, lon: -118.24, label: [8, 4],
+    languages: "Inglês e espanhol", currency: "Dólar americano (USD)",
+    population: "≈ 3,9 milhões (cidade)", airport: "Los Angeles International (LAX)",
+    landmarks: ["Letreiro de Hollywood", "Calçada da Fama", "Observatório Griffith", "Praia de Santa Mônica"],
+    desc: "Metrópole da costa do Pacífico, no sul da Califórnia, conhecida pela indústria do cinema em Hollywood, pelas praias e pelas longas avenidas cercadas de palmeiras.",
+    image: { src: WM + "5/5a/Hollywood_Sign_%28Zuschnitt%29.jpg/960px-Hollywood_Sign_%28Zuschnitt%29.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:Hollywood_Sign_(Zuschnitt).jpg",
+      author: "Thomas Wolf (www.foto-tw.de)", license: "CC BY-SA 3.0", alt: "Letreiro de Hollywood nas colinas de Los Angeles" },
+    locations: [
+      { id: "studio", icon: "🎬", name: "Brisa Filmes — estúdio em Burbank", kind: "Escritório comercial",
+        text: "Um galpão com cenários de papelão e uma placa desbotada: “Brisa Filmes”.",
+        finds: [{ clue: "la_estudio" }] },
+      { id: "walk", icon: "⭐", name: "Calçada da Fama", kind: "Local de encontro",
+        text: "Entre turistas e sósias, um homem de terno e óculos escuros chama atenção…",
+        finds: [{ clue: "la_sosia" }, { witness: "la_jenny" }] },
+      { id: "lax", icon: "✈", name: "Aeroporto LAX", kind: "Aeroporto",
+        text: "As listas de passageiros dos últimos dias não registram nenhum F. Silva.",
+        finds: [] }
+    ]
+  },
+  miami: {
+    name: "Miami", country: "Estados Unidos", flag: "us", region: "América do Norte",
+    lat: 25.76, lon: -80.19, label: [8, 10],
+    languages: "Inglês e espanhol", currency: "Dólar americano (USD)",
+    population: "≈ 450 mil (cidade) · 6,1 milhões (região)", airport: "Miami International (MIA)",
+    landmarks: ["South Beach", "Ocean Drive", "Little Havana", "Bairro art déco"],
+    desc: "Cidade do sudeste da Flórida, porta de entrada para a América Latina e o Caribe. Praias, prédios art déco e forte presença das culturas cubana e latino-americana.",
+    image: { src: WM + "1/12/Miami%2C_Florida_skyline.jpg/960px-Miami%2C_Florida_skyline.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:Miami,_Florida_skyline.jpg",
+      author: "Wilfredor", license: "CC0", alt: "Horizonte de prédios de Miami à beira da baía" },
+    locations: [
+      { id: "hotel", icon: "🏖", name: "Hotel Flamingo Rosa — Miami Beach", kind: "Hotel",
+        text: "A recepcionista encontra uma reserva paga antecipadamente… e nunca utilizada.",
+        finds: [{ doc: "doc_mia_reserva" }] },
+      { id: "beach", icon: "🥥", name: "Quiosques de Ocean Drive", kind: "Comércio",
+        text: "Um vendedor de cocos de camisa florida tenta se esconder atrás do balcão.",
+        finds: [{ clue: "mia_gerson" }, { witness: "mia_carlos" }] },
+      { id: "marina", icon: "⛵", name: "Marina de Bayside", kind: "Porto",
+        text: "Corretores de barcos adoram contar histórias. Nem todas são úteis.",
+        finds: [{ clue: "mia_iate" }] }
+    ]
+  },
+  london: {
+    name: "Londres", country: "Reino Unido", flag: "gb", region: "Europa",
+    lat: 51.51, lon: -0.13, label: [-58, -6],
+    languages: "Inglês", currency: "Libra esterlina (GBP)",
+    population: "≈ 8,9 milhões", airport: "Heathrow (LHR)",
+    landmarks: ["Tower Bridge", "Big Ben (Torre Elizabeth)", "London Eye", "Ônibus vermelhos de dois andares"],
+    desc: "Capital do Reino Unido, às margens do rio Tâmisa. Um dos maiores centros financeiros do mundo, com a City de Londres, chuvas frequentes e os famosos ônibus vermelhos de dois andares.",
+    image: { src: WM + "4/44/Tower_Bridge_London_Feb_2006.jpg/960px-Tower_Bridge_London_Feb_2006.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:Tower_Bridge_London_Feb_2006.jpg",
+      author: "David Iliff (Diliff)", license: "CC BY-SA 3.0", alt: "Tower Bridge sobre o rio Tâmisa, em Londres" },
+    locations: [
+      { id: "bank", icon: "🏦", name: "Thames Meridian Private Bank", kind: "Banco fictício",
+        text: "Com uma ordem de cooperação internacional, o banco entrega o extrato da conta da Brisa Offshore.",
+        finds: [{ doc: "doc_lon_extrato" }, { witness: "lon_priya" }] },
+      { id: "heathrow", icon: "✈", name: "Agência de viagens de Heathrow", kind: "Aeroporto",
+        text: "A atendente lembra bem do cliente que pagou uma passagem só de ida em dinheiro vivo.",
+        finds: [{ clue: "lon_bosforo" }] },
+      { id: "pub", icon: "🍺", name: "Pub The Crooked Ledger", kind: "Restaurante",
+        text: "Um pub antigo na City, frequentado por banqueiros depois do expediente.",
+        finds: [{ witness: "lon_nigel" }] }
+    ]
+  },
+  paris: {
+    name: "Paris", country: "França", flag: "fr", region: "Europa",
+    lat: 48.86, lon: 2.35, label: [8, 12],
+    languages: "Francês", currency: "Euro (EUR)",
+    population: "≈ 2,1 milhões (cidade) · 12 milhões (região)", airport: "Charles de Gaulle (CDG)",
+    landmarks: ["Torre Eiffel", "Museu do Louvre", "Catedral de Notre-Dame", "Arco do Triunfo"],
+    desc: "Capital da França, cortada pelo rio Sena. Referência mundial em arte, moda e gastronomia, com cafés nas calçadas e a Torre Eiffel como símbolo.",
+    image: { src: WM + "b/b7/Paris_-_The_Eiffel_Tower_in_spring_-_2307.jpg/960px-Paris_-_The_Eiffel_Tower_in_spring_-_2307.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:Paris_-_The_Eiffel_Tower_in_spring_-_2307.jpg",
+      author: "Jorge Royan", license: "CC BY-SA 3.0", alt: "Torre Eiffel na primavera, em Paris" },
+    locations: [
+      { id: "fashion", icon: "👠", name: "Desfile da Semana de Moda", kind: "Local de encontro",
+        text: "Flashes, passarela e uma convidada brasileira muito conhecida pela polícia.",
+        finds: [{ clue: "par_marcia" }, { witness: "par_amelie" }] },
+      { id: "cafe", icon: "☕", name: "Café Les Deux Comptables", kind: "Restaurante",
+        text: "O garçom ouve tudo, mas confunde metade.",
+        finds: [{ clue: "par_boato" }] },
+      { id: "cdg", icon: "✈", name: "Aeroporto Charles de Gaulle", kind: "Aeroporto",
+        text: "Nenhum passageiro com o nome ou a descrição de Flavitcho nos últimos dias.",
+        finds: [] }
+    ]
+  },
+  rome: {
+    name: "Roma", country: "Itália", flag: "it", region: "Europa",
+    lat: 41.9, lon: 12.5, label: [8, 12],
+    languages: "Italiano", currency: "Euro (EUR)",
+    population: "≈ 2,8 milhões", airport: "Leonardo da Vinci – Fiumicino (FCO)",
+    landmarks: ["Coliseu", "Fontana di Trevi", "Panteão", "Vaticano (enclave vizinho)"],
+    desc: "Capital da Itália, a “Cidade Eterna”, à beira do rio Tibre. Reúne ruínas do Império Romano, igrejas barrocas e, dentro dela, o pequeno Estado do Vaticano.",
+    image: { src: WM + "d/d8/Colosseum_in_Rome-April_2007-1-_copie_2B.jpg/960px-Colosseum_in_Rome-April_2007-1-_copie_2B.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:Colosseum_in_Rome-April_2007-1-_copie_2B.jpg",
+      author: "David Iliff (Diliff)", license: "CC BY-SA 2.5", alt: "Coliseu de Roma" },
+    locations: [
+      { id: "bank", icon: "🏛", name: "Banca Tiberina (fictícia)", kind: "Banco fictício",
+        text: "O gerente procura nos arquivos e encontra um memorando antigo.",
+        finds: [{ doc: "doc_rom_banco" }] },
+      { id: "trevi", icon: "⛲", name: "Fontana di Trevi", kind: "Ponto turístico",
+        text: "Moedas, turistas e um guia que diz conhecer “todo mundo”.",
+        finds: [{ witness: "rom_giulia" }] },
+      { id: "post", icon: "✉", name: "Correio central", kind: "Arquivo público",
+        text: "Um cartão-postal endereçado à polícia brasileira está retido por falta de selo.",
+        finds: [{ clue: "rom_carta" }] }
+    ]
+  },
+  berlin: {
+    name: "Berlim", country: "Alemanha", flag: "de", region: "Europa",
+    lat: 52.52, lon: 13.4, label: [8, -6],
+    languages: "Alemão", currency: "Euro (EUR)",
+    population: "≈ 3,7 milhões", airport: "Berlim-Brandemburgo (BER)",
+    landmarks: ["Portão de Brandemburgo", "Muro de Berlim (East Side Gallery)", "Reichstag", "Ilha dos Museus"],
+    desc: "Capital da Alemanha, às margens do rio Spree. Dividida pelo Muro entre 1961 e 1989, hoje é um polo de cultura, tecnologia e história do século XX.",
+    image: { src: WM + "b/b1/Brandenburger_Tor_morgens.jpg/960px-Brandenburger_Tor_morgens.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:Brandenburger_Tor_morgens.jpg",
+      author: "Thomas Wolf (www.foto-tw.de)", license: "CC BY-SA 3.0", alt: "Portão de Brandemburgo, em Berlim, pela manhã" },
+    locations: [
+      { id: "station", icon: "🚆", name: "Estação central (Hauptbahnhof)", kind: "Estação",
+        text: "Um homem de terno escuro arrasta uma mala de rodinhas preta pela plataforma…",
+        finds: [{ clue: "ber_tavinho" }, { witness: "ber_klaus" }] },
+      { id: "vault", icon: "🔐", name: "Cofres de aluguel em Mitte", kind: "Centro financeiro",
+        text: "Um cofre alugado em nome de “F. S.” foi aberto… e está vazio.",
+        finds: [{ clue: "ber_cofre" }] },
+      { id: "wall", icon: "🧱", name: "East Side Gallery", kind: "Ponto turístico",
+        text: "Grafites, turistas e nenhum sinal de pasta executiva.",
+        finds: [] }
+    ]
+  },
+  istanbul: {
+    name: "Istambul", country: "Turquia", flag: "tr", region: "Europa / Ásia",
+    lat: 41.01, lon: 28.98, label: [8, 12],
+    languages: "Turco", currency: "Lira turca (TRY)",
+    population: "≈ 15,6 milhões", airport: "Aeroporto de Istambul (IST)",
+    landmarks: ["Hagia Sophia (Santa Sofia)", "Mesquita Azul", "Grande Bazar", "Estreito do Bósforo"],
+    desc: "Maior cidade da Turquia, dividida pelo estreito do Bósforo entre a Europa e a Ásia. Antiga Constantinopla, famosa pelos bazares, mesquitas e pela culinária.",
+    image: { src: WM + "2/22/Hagia_Sophia_Mars_2013.jpg/960px-Hagia_Sophia_Mars_2013.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:Hagia_Sophia_Mars_2013.jpg",
+      author: "Arild Vågen", license: "CC BY-SA 3.0", alt: "Hagia Sophia, em Istambul" },
+    locations: [
+      { id: "bazaar", icon: "💍", name: "Joalheria no Grande Bazar", kind: "Comércio",
+        text: "A joalheira, nervosa, entrega a cópia de uma nota fiscal enorme.",
+        finds: [{ doc: "doc_ist_ouro" }, { witness: "ist_ayse" }] },
+      { id: "office", icon: "🏢", name: "Escritório da Lagosta Azul — Karaköy", kind: "Escritório comercial",
+        text: "Gavetas abertas, papéis triturados… e uma agenda esquecida embaixo da mesa.",
+        finds: [{ clue: "ist_escritorio" }] },
+      { id: "airport", icon: "✈", name: "Aeroporto de Istambul", kind: "Aeroporto",
+        text: "O balcão da companhia aérea guarda a segunda via de um cartão de embarque.",
+        finds: [{ doc: "doc_ist_voo" }, { witness: "ist_mehmet" }] }
+    ]
+  },
+  telaviv: {
+    name: "Tel Aviv", country: "Israel", flag: "il", region: "Oriente Médio (Ásia)",
+    lat: 32.08, lon: 34.78, label: [8, 12],
+    languages: "Hebraico (árabe também é amplamente falado no país)", currency: "Novo shekel israelense (ILS)",
+    population: "≈ 470 mil (cidade) · 4 milhões (região)", airport: "Ben Gurion (TLV)",
+    landmarks: ["Cidade Branca (arquitetura Bauhaus)", "Antigo porto de Jaffa", "Praia Gordon", "Boulevard Rothschild"],
+    desc: "Cidade costeira de Israel, à beira do Mediterrâneo, unida à antiga Jaffa. Conhecida pela “Cidade Branca” de prédios Bauhaus (patrimônio da UNESCO), pelas praias e pelo forte setor de startups.",
+    image: { src: WM + "0/0f/Israel-2013-Jaffa_02.jpg/960px-Israel-2013-Jaffa_02.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:Israel-2013-Jaffa_02.jpg",
+      author: "Godot13", license: "CC BY-SA 4.0", alt: "Vista do antigo porto de Jaffa, em Tel Aviv-Yafo" },
+    locations: [
+      { id: "startup", icon: "💻", name: "Startup BlockLagosta — Boulevard Rothschild", kind: "Escritório comercial",
+        text: "Pufes coloridos, uma máquina de café gourmet e um relatório interno sobre a “LagostaCoin”.",
+        finds: [{ doc: "doc_tlv_cripto" }, { witness: "tlv_yossi" }] },
+      { id: "beach", icon: "🏖", name: "Praia Gordon", kind: "Local de encontro",
+        text: "A salva-vidas do posto 4 acena: ela tem algo a contar.",
+        finds: [{ witness: "tlv_noa" }] },
+      { id: "jaffa", icon: "⚓", name: "Antigo porto de Jaffa", kind: "Porto",
+        text: "Um congresso de lobistas acontece num armazém restaurado do porto.",
+        finds: [{ clue: "tlv_rolando" }] }
+    ]
+  },
+  tokyo: {
+    name: "Tóquio", country: "Japão", flag: "jp", region: "Ásia",
+    lat: 35.68, lon: 139.69, label: [8, -6],
+    languages: "Japonês", currency: "Iene (JPY)",
+    population: "≈ 14 milhões (metrópole) · 37 milhões (região)", airport: "Haneda (HND) e Narita (NRT)",
+    landmarks: ["Torre de Tóquio", "Cruzamento de Shibuya", "Templo Senso-ji", "Monte Fuji (visível em dias claros)"],
+    desc: "Capital do Japão e uma das maiores áreas urbanas do mundo. Mistura templos tradicionais, tecnologia de ponta, trens-bala e o famoso cruzamento de Shibuya.",
+    image: { src: WM + "6/6d/Tokyo_Tower%2C_Minato_City.jpg/960px-Tokyo_Tower%2C_Minato_City.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:Tokyo_Tower,_Minato_City.jpg",
+      author: "David Kernan", license: "CC BY 4.0", alt: "Torre de Tóquio entre os prédios de Minato" },
+    locations: [
+      { id: "exchange", icon: "💱", name: "Kintsugi Exchange — Shibuya", kind: "Centro financeiro",
+        text: "A corretora de criptomoedas colabora e imprime o registro de saques da carteira suspeita.",
+        finds: [{ doc: "doc_tok_saque" }, { witness: "tok_yumi" }] },
+      { id: "ryokan", icon: "🏯", name: "Ryokan Sakura — Shinjuku", kind: "Hotel",
+        text: "Uma pousada tradicional com tatames, chá verde e um recepcionista muito observador.",
+        finds: [{ witness: "tok_haruto" }] },
+      { id: "port", icon: "⚓", name: "Escritório náutico de Yokohama", kind: "Porto",
+        text: "Um contrato de venda de iate de luxo, assinado há poucos dias, está sobre o balcão.",
+        finds: [{ doc: "doc_tok_iate" }] }
+    ]
+  },
+  beijing: {
+    name: "Pequim", country: "China", flag: "cn", region: "Ásia",
+    lat: 39.9, lon: 116.4, label: [-50, -8],
+    languages: "Mandarim", currency: "Yuan renminbi (CNY)",
+    population: "≈ 21,5 milhões", airport: "Pequim-Capital (PEK) e Daxing (PKX)",
+    landmarks: ["Cidade Proibida", "Praça Tiananmen", "Templo do Céu", "Grande Muralha (nos arredores)"],
+    desc: "Capital da China, centro político e cultural do país há séculos. Abriga a Cidade Proibida, antigo palácio imperial, e trechos da Grande Muralha nos arredores.",
+    image: { src: WM + "a/a7/Forbidden_City_Beijing_Shenwumen_Gate.JPG/960px-Forbidden_City_Beijing_Shenwumen_Gate.JPG",
+      page: "https://commons.wikimedia.org/wiki/File:Forbidden_City_Beijing_Shenwumen_Gate.JPG",
+      author: "kallgan", license: "CC BY-SA 3.0", alt: "Portão Shenwu da Cidade Proibida, em Pequim" },
+    locations: [
+      { id: "factory", icon: "👜", name: "Ateliê de artigos de couro", kind: "Comércio",
+        text: "O artesão mostra o caderno de encomendas personalizadas.",
+        finds: [{ clue: "pek_fabrica" }, { witness: "pek_lin" }] },
+      { id: "tea", icon: "🍵", name: "Casa de chá de Qianmen", kind: "Restaurante",
+        text: "Um pedido de chá em nome da Lagosta Azul… de dois anos atrás.",
+        finds: [{ clue: "pek_cha" }] },
+      { id: "airport", icon: "✈", name: "Aeroporto de Daxing", kind: "Aeroporto",
+        text: "Nenhum registro do suspeito nos voos recentes.",
+        finds: [] }
+    ]
+  },
+  sydney: {
+    name: "Sydney", country: "Austrália", flag: "au", region: "Oceania",
+    lat: -33.87, lon: 151.21, label: [8, 12],
+    languages: "Inglês", currency: "Dólar australiano (AUD)",
+    population: "≈ 5,3 milhões (região)", airport: "Kingsford Smith (SYD)",
+    landmarks: ["Sydney Opera House", "Harbour Bridge", "Darling Harbour", "Praia de Bondi"],
+    desc: "Maior cidade da Austrália, em torno de uma das baías naturais mais bonitas do mundo. A Opera House, com telhado em forma de velas, e a Harbour Bridge são seus cartões-postais. No hemisfério sul, o verão vai de dezembro a fevereiro.",
+    image: { src: WM + "7/7d/Sydney_Opera_House_and_Harbour_Bridge_Dusk_%283%29_2019-06-21.jpg/960px-Sydney_Opera_House_and_Harbour_Bridge_Dusk_%283%29_2019-06-21.jpg",
+      page: "https://commons.wikimedia.org/wiki/File:Sydney_Opera_House_and_Harbour_Bridge_Dusk_(3)_2019-06-21.jpg",
+      author: "Benh LIEU SONG", license: "CC BY-SA 4.0", alt: "Sydney Opera House e Harbour Bridge ao entardecer" },
+    locations: [
+      { id: "marina", icon: "🛥", name: "Marina de Darling Harbour", kind: "Porto",
+        text: "Dezenas de iates de luxo balançam no cais. Um deles tem as cortinas fechadas em pleno meio-dia.",
+        finds: [{ clue: "syd_esconderijo" }, { witness: "syd_jack" }] },
+      { id: "opera", icon: "🎭", name: "Escadaria da Opera House", kind: "Ponto turístico",
+        text: "Os seguranças da Opera House revisam as imagens da noite anterior.",
+        finds: [{ clue: "syd_opera" }] },
+      { id: "bank", icon: "🏦", name: "Southern Cross Bank (fictício)", kind: "Banco fictício",
+        text: "O banco entrega o extrato de uma conta aberta há menos de uma semana.",
+        finds: [{ doc: "doc_syd_conta" }, { witness: "syd_olivia" }] }
+    ]
+  }
+};
+
+/* ---------------------------------------------------------------------
+   TRAÇOS FÍSICOS (usados para comparar depoimentos com as fichas)
+   --------------------------------------------------------------------- */
+const TRAITS = {
+  homem: "Homem",
+  terno_escuro: "Terno escuro",
+  oculos_escuros: "Óculos escuros",
+  pasta_fs: "Pasta executiva com iniciais “F.S.”",
+  relogio_dourado: "Relógio dourado",
+  sem_bigode: "Barba feita, sem bigode"
+};
+
+/* ---------------------------------------------------------------------
+   SUSPEITOS (banco de dados)
+   --------------------------------------------------------------------- */
+const SUSPECTS = [
+  { id: "flavitcho", name: "Flavitcho Silva", alias: "Flavitcho", age: 44, nationality: "Brasileira (no universo do jogo)",
+    job: "Político fictício", traits: ["homem", "terno_escuro", "oculos_escuros", "pasta_fs", "relogio_dourado", "sem_bigode"],
+    look: "Cabelo preto penteado para trás, barba sempre feita, sem bigode. Expressão desconfiada.",
+    clothes: "Terno escuro sob medida, camisa branca, gravata grafite.",
+    accessories: "Óculos escuros (inclusive à noite), pasta executiva de couro com as iniciais “F.S.” em dourado, relógio dourado.",
+    relation: "Principal suspeito do desvio dos recursos da fictícia obra “Ponte da Integração”.",
+    known: "Fugiu do país antes da ordem de prisão. Última localização conhecida: Nova York, Estados Unidos.",
+    status: "Foragido",
+    art: { kind: "flavitcho" } },
+  { id: "tavinho", name: "Otávio “Tavinho” Brandão", alias: "Tavinho Mala-Preta", age: 31, nationality: "Brasileira (no universo do jogo)",
+    job: "Assessor parlamentar fictício", traits: ["homem", "terno_escuro", "oculos_escuros", "relogio_dourado"],
+    look: "Alto, magro, com um bigode farto e bem aparado.",
+    clothes: "Terno escuro um pouco largo demais.",
+    accessories: "Óculos escuros, relógio dourado e uma inseparável mala de rodinhas preta.",
+    relation: "Teria carregado malas de dinheiro vivo para o esquema.",
+    known: "Viaja muito pela Europa. Nunca foi visto com pasta executiva.",
+    status: "Investigado",
+    art: { skin: "#d9a07a", hair: "#2a1d14", hairStyle: "short", suit: "#20262f", tie: "#3a3f4a", glasses: "dark", mustache: true, accessory: "trolley", bg: "#2b3d66" } },
+  { id: "rolando", name: "Dr. Rolando Lero Cabral", alias: "Doutor Lábia", age: 62, nationality: "Brasileira (no universo do jogo)",
+    job: "Lobista fictício", traits: ["homem", "relogio_dourado", "sem_bigode"],
+    look: "Cabelos brancos, barba feita, sorriso permanente.",
+    clothes: "Terno bege claro de linho.",
+    accessories: "Chapéu panamá, bengala de madeira, relógio dourado.",
+    relation: "Intermediou reuniões entre empreiteiras fictícias e o gabinete de Flavitcho.",
+    known: "Fala muito e prova pouco. Adora congressos internacionais.",
+    status: "Investigado",
+    art: { skin: "#e8b896", hair: "#e8e8e8", hairStyle: "short", suit: "#c9b48a", tie: "#7a4a2a", hat: "panama", accessory: "cane", bg: "#4a3d26" } },
+  { id: "marcia", name: "Márcia Vasconcelos", alias: "Dama das Planilhas", age: 38, nationality: "Brasileira (no universo do jogo)",
+    job: "Contadora fictícia", traits: [],
+    look: "Mulher de cabelo preso em coque, olhar atento.",
+    clothes: "Tailleur vermelho.",
+    accessories: "Óculos de grau de armação fina, pasta sem identificação.",
+    relation: "Teria montado as planilhas da Brisa Offshore.",
+    known: "Frequenta eventos de moda na Europa.",
+    status: "Investigada",
+    art: { skin: "#c98d6a", hair: "#1b1410", hairStyle: "bun", suit: "#b3262a", tie: null, glasses: "reading", female: true, bg: "#5a2633" } },
+  { id: "gerson", name: "Gérson Peixoto", alias: "Gérson Laranja", age: 27, nationality: "Brasileira (no universo do jogo)",
+    job: "Diretor formal (“laranja”) da Lagosta Azul Participações", traits: ["homem"],
+    look: "Jovem, cavanhaque ralo, bronzeado.",
+    clothes: "Camisa florida e bermuda.",
+    accessories: "Boné vermelho e mochila.",
+    relation: "Emprestou o nome para registrar a Lagosta Azul. Diz que “só assinou uns papéis”.",
+    known: "Não tem dinheiro nem para a passagem de volta.",
+    status: "Investigado",
+    art: { skin: "#b97a52", hair: "#3b2a1a", hairStyle: "short", suit: "#e0703a", shirtPattern: true, tie: null, hat: "cap", goatee: true, accessory: "backpack", bg: "#2d5a4a" } }
+];
+
+/* ---------------------------------------------------------------------
+   PISTAS
+   type: financeiro | depoimento | viagem | geografica | empresarial |
+         fisica | transferencia | documental
+   related: pistas que corroboram (para "cruzar evidências")
+   pointsTo: cidade sugerida (só destacada no mapa após confirmação)
+   traits: traços físicos revelados · link: liga Flavitcho às empresas
+   --------------------------------------------------------------------- */
+const CLUE_TYPES = {
+  financeiro: "Documento financeiro", depoimento: "Depoimento", viagem: "Registro de viagem",
+  geografica: "Informação geográfica", empresarial: "Registro empresarial", fisica: "Descrição física",
+  transferencia: "Transferência bancária", documental: "Evidência documental"
+};
+
+const CLUES = {
+  /* ---- Nova York ---- */
+  ny_hotel: { city: "ny", type: "fisica", title: "O hóspede da suíte 2104",
+    desc: "O registro da suíte 2104 do Gramercy Imperial está em nome de “F. Silva”. As câmeras mostram um homem de terno escuro e óculos escuros — mesmo à noite, dentro do elevador.",
+    traits: ["homem", "terno_escuro", "oculos_escuros"], related: ["ny_pasta", "ist_desc", "tlv_praia"] },
+  ny_pasta: { city: "ny", type: "fisica", title: "A pasta das iniciais douradas",
+    desc: "A concierge lembra de uma pasta executiva de couro com as iniciais “F.S.” gravadas em dourado. O hóspede nunca a soltava, nem para tomar café.",
+    traits: ["pasta_fs"], related: ["ny_hotel", "ist_desc", "tok_desc", "pek_fabrica"] },
+  ny_brisa: { city: "ny", type: "empresarial", title: "Brisa Offshore Holdings: empresa de fachada",
+    desc: "A auditoria mostra que os R$ 87 milhões da fictícia obra “Ponte da Integração” foram pagos à Brisa Offshore Holdings — empresa sem funcionários, sem obra e com sede numa sala vazia em Wall Street.",
+    related: ["lon_extrato", "lon_compliance", "ny_thames"] },
+  ny_voo: { city: "ny", type: "viagem", title: "Recibo de câmbio e embarque rasgado",
+    desc: "No lixo do portão: um recibo de câmbio de dólares para LIBRAS ESTERLINAS e um pedaço de cartão de embarque onde se lê apenas “…THROW · Terminal 5”.",
+    pointsTo: "london", related: ["ny_onibus", "ny_thames"] },
+  ny_onibus: { city: "ny", type: "geografica", title: "Dica de guarda-chuva",
+    desc: "Ele perguntou onde comprar um bom guarda-chuva “para uma cidade de chuva fina, ônibus vermelhos de dois andares e um relógio famoso numa torre”.",
+    pointsTo: "london", related: ["ny_voo"] },
+  ny_thames: { city: "ny", type: "transferencia", title: "Fax para o Thames Meridian",
+    desc: "Na véspera da fuga, ele pediu que a recepção enviasse um fax ao “Thames Meridian Private Bank” com a anotação: “confirmar chegada dos fundos da Brisa”.",
+    pointsTo: "london", related: ["ny_brisa", "lon_extrato", "ny_voo"] },
+  ny_isca: { city: "ny", type: "depoimento", title: "Falou de Miami… alto demais",
+    desc: "O taxista conta que o passageiro disse ao telefone, bem alto, que “ia tomar sol em Miami”. Mas pediu para descer no terminal dos voos para a Europa.",
+    related: ["mia_isca", "ny_voo"] },
+
+  /* ---- Londres ---- */
+  lon_extrato: { city: "london", type: "transferencia", title: "Fundos da Brisa saem em liras turcas",
+    desc: "O Thames Meridian recebeu US$ 15 milhões da Brisa Offshore e, 48 horas depois, transferiu tudo para a “Lagosta Azul Participações”, numa conta denominada em LIRAS TURCAS (TRY).",
+    pointsTo: "istanbul", related: ["ny_brisa", "lon_compliance", "ist_ouro", "ny_thames"] },
+  lon_bosforo: { city: "london", type: "viagem", title: "Um bilhete para atravessar continentes",
+    desc: "A agência confirma: F. Silva comprou uma passagem só de ida e perguntou se “dava para almoçar na Europa e jantar na Ásia sem sair da cidade, atravessando o Bósforo”.",
+    pointsTo: "istanbul", related: ["lon_mesquita", "lon_extrato"] },
+  lon_relogio: { city: "london", type: "fisica", title: "Relógio dourado e barba impecável",
+    desc: "O bartender reparou num relógio dourado enorme no pulso do cliente. “Barba impecável, nem sombra de bigode”, garante.",
+    traits: ["homem", "relogio_dourado", "sem_bigode"], related: ["tok_desc", "ber_tavinho"] },
+  lon_mesquita: { city: "london", type: "geografica", title: "Kebab e a mesquita dos seis minaretes",
+    desc: "Entre um chá e outro, o cliente comentou que ia “comer kebab de verdade, visitar a Mesquita Azul e pechinchar no Grande Bazar”.",
+    pointsTo: "istanbul", related: ["lon_bosforo"] },
+  lon_compliance: { city: "london", type: "transferencia", title: "Relatório de transação suspeita nº 4471",
+    desc: "A analista sinalizou a operação Brisa → Lagosta Azul como suspeita: valores fracionados logo abaixo do limite de alerta, todos no mesmo dia.",
+    related: ["lon_extrato", "ny_brisa"] },
+  lon_procuracao: { city: "london", type: "empresarial", title: "A procuração da Lagosta Azul",
+    desc: "O diretor formal da Lagosta Azul é Gérson Peixoto, um “laranja”. Mas a procuração com plenos poderes sobre as contas da empresa foi assinada por… F. Silva.",
+    link: true, related: ["ist_ouro", "lon_extrato", "mia_gerson"] },
+
+  /* ---- Istambul ---- */
+  ist_ouro: { city: "istanbul", type: "financeiro", title: "Nota fiscal: 40 kg de ouro",
+    desc: "A joalheria do Grande Bazar vendeu 40 kg de ouro à Lagosta Azul Participações. Entrega feita em mãos ao “Sr. F. Silva”, no hotel.",
+    link: true, related: ["lon_procuracao", "lon_extrato", "tlv_cripto"] },
+  ist_escritorio: { city: "istanbul", type: "geografica", title: "Agenda esquecida em Karaköy",
+    desc: "Na agenda da Lagosta Azul: “Cidade Branca — prédios Bauhaus — trocar ouro por shekels — praia no Mediterrâneo”.",
+    pointsTo: "telaviv", related: ["ist_shekel", "ist_voo"] },
+  ist_voo: { city: "istanbul", type: "viagem", title: "Cartão de embarque para o Ben Gurion",
+    desc: "Segunda via de cartão de embarque em nome de F. SILVA: voo de cerca de 2 horas com destino ao Aeroporto Internacional Ben Gurion.",
+    pointsTo: "telaviv", related: ["ist_escritorio", "ist_taxi"] },
+  ist_desc: { city: "istanbul", type: "fisica", title: "Terno escuro sob 30 graus",
+    desc: "A joalheira descreve um homem de terno escuro e óculos escuros mesmo dentro da loja. Pagou abrindo uma pasta de couro com as iniciais “F.S.”.",
+    traits: ["homem", "terno_escuro", "oculos_escuros", "pasta_fs"], related: ["ny_hotel", "ny_pasta"] },
+  ist_shekel: { city: "istanbul", type: "geografica", title: "Pergunta sobre o shekel",
+    desc: "Ele quis saber se o ouro passaria pela alfândega de um país cuja moeda é o novo shekel e onde se fala hebraico.",
+    pointsTo: "telaviv", related: ["ist_escritorio"] },
+  ist_taxi: { city: "istanbul", type: "depoimento", title: "Corrida até o aeroporto",
+    desc: "O taxista levou o passageiro ao Aeroporto de Istambul: “Disse que o voo era curtinho, para o sudeste, do outro lado do Mediterrâneo oriental.”",
+    pointsTo: "telaviv", related: ["ist_voo"] },
+
+  /* ---- Tel Aviv ---- */
+  tlv_cripto: { city: "telaviv", type: "financeiro", title: "O ouro virou LagostaCoin",
+    desc: "A BlockLagosta converteu o ouro numa criptomoeda própria, a “LagostaCoin”, e transferiu o saldo para uma corretora no Japão, com saque previsto em IENES.",
+    pointsTo: "tokyo", related: ["ist_ouro", "tlv_shibuya", "tok_saque"] },
+  tlv_praia: { city: "telaviv", type: "fisica", title: "O homem de terno na praia",
+    desc: "A salva-vidas viu um homem de terno escuro e óculos escuros sentado na areia, abraçado a uma pasta de couro. “Recusou até tirar o paletó.”",
+    traits: ["homem", "terno_escuro", "oculos_escuros"], related: ["ny_hotel", "ist_desc"] },
+  tlv_arigato: { city: "telaviv", type: "geografica", title: "Aula relâmpago de japonês",
+    desc: "Ele pediu a um turista que o ensinasse a dizer “arigatô” e perguntou se o hotel ficava perto “do cruzamento de pedestres mais movimentado do mundo”.",
+    pointsTo: "tokyo", related: ["tlv_shibuya"] },
+  tlv_shibuya: { city: "telaviv", type: "transferencia", title: "Saque agendado em Shibuya",
+    desc: "O investigador rastreou a carteira da LagostaCoin: o saque foi agendado numa corretora do bairro de Shibuya.",
+    pointsTo: "tokyo", related: ["tlv_cripto", "tlv_arigato"] },
+  tlv_rolando: { city: "telaviv", type: "depoimento", title: "Rolando Lero tem álibi",
+    desc: "O lobista Rolando Lero, citado nas planilhas, passou a semana num congresso em Jaffa, filmado o tempo todo — de terno bege, chapéu panamá e bengala. Não bate com o fugitivo.",
+    related: ["ny_hotel"] },
+
+  /* ---- Tóquio ---- */
+  tok_saque: { city: "tokyo", type: "financeiro", title: "Ienes convertidos em dólares australianos",
+    desc: "A Kintsugi Exchange registra o saque de ¥ 1,9 bilhão da carteira LagostaCoin, convertidos imediatamente em DÓLARES AUSTRALIANOS (AUD).",
+    pointsTo: "sydney", related: ["tlv_cripto", "tok_iate", "syd_conta"] },
+  tok_desc: { city: "tokyo", type: "fisica", title: "Relógio dourado e pasta “F.S.”",
+    desc: "O recepcionista viu o hóspede assinar o registro: relógio dourado no pulso, rosto bem barbeado, sem bigode, e a pasta com as iniciais “F.S.” no balcão.",
+    traits: ["homem", "relogio_dourado", "sem_bigode", "pasta_fs"], related: ["lon_relogio", "ny_pasta"] },
+  tok_opera: { city: "tokyo", type: "geografica", title: "Protetor solar para o hemisfério sul",
+    desc: "Pediu protetor solar fator 70: “Vou para o verão do hemisfério sul ver uma ópera com telhado em forma de velas de barco.”",
+    pointsTo: "sydney", related: ["tok_canguru", "tok_iate"] },
+  tok_iate: { city: "tokyo", type: "documental", title: "Contrato do iate “Maré Mansa”",
+    desc: "Compra de um iate de luxo, o “Maré Mansa”, com entrega numa marina de Darling Harbour. Comprador: Maré Mansa Holdings — procurador: F. Silva.",
+    pointsTo: "sydney", link: true, related: ["tok_saque", "tok_opera"] },
+  tok_canguru: { city: "tokyo", type: "depoimento", title: "Chapéu de abas largas e canguru de pelúcia",
+    desc: "A jornalista flagrou o homem de óculos escuros comprando um chapéu de abas largas e um canguru de pelúcia no aeroporto de Haneda.",
+    pointsTo: "sydney", related: ["tok_opera"] },
+  tok_colapso: { city: "tokyo", type: "financeiro", title: "O colapso da LagostaCoin",
+    desc: "A LagostaCoin despencou 99% em uma hora — mas a carteira principal sacou tudo minutos antes. Pequenos investidores ficaram com o prejuízo.",
+    related: ["tlv_cripto", "tok_saque"] },
+
+  /* ---- Sydney ---- */
+  syd_esconderijo: { city: "sydney", type: "depoimento", title: "Esconderijo: iate “Maré Mansa”", final: true,
+    desc: "O iate “Maré Mansa” está ancorado em Darling Harbour. Um tripulante confirma: o dono — terno escuro, óculos escuros, pasta “F.S.” — não desembarca há dois dias.",
+    related: ["tok_iate", "syd_conta"] },
+  syd_opera: { city: "sydney", type: "depoimento", title: "Visto na escadaria da Opera House",
+    desc: "As câmeras da Opera House mostram um homem de terno escuro e óculos escuros, com uma pasta de couro, voltando a pé em direção a Darling Harbour.",
+    related: ["tok_opera", "syd_esconderijo"] },
+  syd_conta: { city: "sydney", type: "financeiro", title: "Conta da Maré Mansa Holdings",
+    desc: "A conta da Maré Mansa Holdings no Southern Cross Bank recebeu AUD 18 milhões vindos da Kintsugi Exchange. Procurador da conta: F. Silva.",
+    link: true, related: ["tok_saque", "tok_iate"] },
+
+  /* ---- Cidades fora da trilha (eliminam hipóteses ou são inconclusivas) ---- */
+  mia_isca: { city: "miami", type: "viagem", title: "Reserva-isca em Miami Beach",
+    desc: "Há uma reserva em nome de F. Silva num hotel de Miami Beach, paga com antecedência… mas o hóspede nunca apareceu. Tudo indica uma isca para despistar a polícia.",
+    related: ["ny_isca"] },
+  mia_gerson: { city: "miami", type: "depoimento", title: "Gérson “Laranja” vende cocos em Miami",
+    desc: "Gérson Peixoto, o laranja da Lagosta Azul, foi encontrado em Miami de camisa florida, boné e mochila. Nunca usa terno nem óculos escuros — não é o homem descrito pelas testemunhas.",
+    related: ["lon_procuracao"] },
+  mia_iate: { city: "miami", type: "depoimento", title: "“Um brasileiro rico” queria um iate", inconclusive: true,
+    desc: "Um corretor jura que “um brasileiro rico” perguntou por iates. Sem nome, sem descrição, sem data. Impossível verificar." },
+  la_estudio: { city: "la", type: "empresarial", title: "Brisa Filmes: produtora fantasma", inconclusive: true,
+    desc: "A Brisa Filmes tem nome parecido com a Brisa Offshore, mas não movimenta dinheiro há anos. Os sócios são outros. Parece coincidência." },
+  la_sosia: { city: "la", type: "depoimento", title: "Sósia em Hollywood", inconclusive: true,
+    desc: "O “homem de terno e óculos escuros” da Calçada da Fama é só um figurante de filme de espionagem. Não tem pasta, nem relógio dourado, nem passaporte brasileiro." },
+  par_marcia: { city: "paris", type: "depoimento", title: "A Dama das Planilhas em Paris",
+    desc: "Márcia Vasconcelos foi fotografada em Paris de tailleur vermelho e óculos de grau. As testemunhas falam de um HOMEM de terno escuro — não é ela.",
+    related: ["ny_hotel"] },
+  par_boato: { city: "paris", type: "depoimento", title: "Boato de café", inconclusive: true,
+    desc: "O garçom ouviu “alguém” dizer que “um político” estaria “em algum lugar quente”. Informação vaga demais." },
+  rom_conta: { city: "rome", type: "documental", title: "Conta recusada em Roma", inconclusive: true,
+    desc: "A Brisa Offshore tentou abrir uma conta na Banca Tiberina dois anos atrás e foi recusada por falta de documentos. Nada recente." },
+  rom_carta: { city: "rome", type: "documental", title: "Cartão-postal debochado", inconclusive: true,
+    desc: "Um postal do Coliseu, sem assinatura: “Até nunca mais, otários!”. A letra não confere com nenhum suspeito. Provavelmente um trote." },
+  ber_tavinho: { city: "berlin", type: "depoimento", title: "Tavinho Mala-Preta em Berlim",
+    desc: "Otávio “Tavinho” Brandão está em Berlim: terno escuro e óculos escuros, sim — mas tem bigode farto e arrasta uma mala de rodinhas, nunca uma pasta “F.S.”.",
+    related: ["lon_relogio", "ny_pasta"] },
+  ber_cofre: { city: "berlin", type: "documental", title: "Cofre vazio em Mitte", inconclusive: true,
+    desc: "Um cofre alugado por “F. S.” foi esvaziado há mais de um ano. Pode ser outra pessoa com as mesmas iniciais." },
+  pek_fabrica: { city: "beijing", type: "empresarial", title: "A encomenda da pasta “F.S.”",
+    desc: "O ateliê fabricou, meses atrás, uma pasta de couro com iniciais douradas “F.S.” para um cliente brasileiro, com entrega num hotel de Nova York.",
+    related: ["ny_pasta"] },
+  pek_cha: { city: "beijing", type: "financeiro", title: "Chá da Lagosta Azul", inconclusive: true,
+    desc: "A Lagosta Azul comprou 300 kg de chá dois anos atrás. Estranho, mas sem relação com a fuga." }
+};
+
+/* ---------------------------------------------------------------------
+   DOCUMENTOS (visual próprio; ao examinar, revelam pistas)
+   --------------------------------------------------------------------- */
+const DOCUMENTS = {
+  doc_memo: { city: "ny", style: "memo", financial: false, title: "Memorando de investigação nº 001", clue: null,
+    sub: "Agência Internacional de Rastreamento de Ativos (fictícia) · CONFIDENCIAL",
+    body: `<p><b>Para:</b> Agente Lula e equipe<br><b>Assunto:</b> Operação Ponte Fantasma</p>
+<p>O político fictício <b>Flavitcho Silva</b> é suspeito de desviar <span class="hl">R$ 87 milhões</span> destinados à construção da “Ponte da Integração” — obra que nunca saiu do papel.</p>
+<p>Antes da ordem de prisão, o suspeito embarcou para <b>Nova York</b>. Acreditamos que ele está seguindo o próprio dinheiro, que passa por empresas de fachada e contas no exterior.</p>
+<p><b>Prioridades:</b> (1) localizar a empresa que recebeu os pagamentos; (2) descobrir para onde os recursos foram transferidos; (3) reunir descrições físicas e vínculos do suspeito com as empresas; (4) obter mandado e efetuar a captura.</p>
+<p class="note">Prazo operacional: 10 dias. Depois disso, o suspeito terá tempo de desaparecer de vez.</p>` },
+  doc_ny_contrato: { city: "ny", style: "audit", financial: true, title: "Relatório de auditoria nº 087/2031", clue: "ny_brisa",
+    sub: "Tribunal de Contas (fictício) · Obra: Ponte da Integração",
+    body: `<table><tr><th>Data</th><th>Descrição</th><th>Beneficiário</th><th>Valor</th></tr>
+<tr><td>02/01</td><td>Projeto executivo</td><td><span class="hl">Brisa Offshore Holdings</span></td><td>R$ 12.000.000</td></tr>
+<tr><td>15/02</td><td>“Terraplenagem”</td><td><span class="hl">Brisa Offshore Holdings</span></td><td>R$ 31.500.000</td></tr>
+<tr><td>30/03</td><td>“Estruturas metálicas”</td><td><span class="hl">Brisa Offshore Holdings</span></td><td>R$ 43.500.000</td></tr>
+<tr><th colspan="3">Total pago</th><th>R$ 87.000.000</th></tr></table>
+<p><b>Constatações:</b> nenhuma etapa da obra foi executada. A Brisa Offshore não possui funcionários, máquinas ou experiência em construção. Sede declarada: sala 3104, Wall Street, Nova York — <i>vazia</i>.</p>
+<p class="note">Recomendação: rastrear para onde a Brisa enviou os recursos.</p>`, stamp: "AUDITADO" },
+  doc_ny_voo: { city: "ny", style: "ticket", financial: false, title: "Achados do portão B22 — JFK", clue: "ny_voo",
+    sub: "Registro de evidências coletadas pela segurança do aeroporto",
+    body: `<table><tr><th>Item</th><th>Descrição</th></tr>
+<tr><td>1</td><td>Recibo de casa de câmbio: US$ 9.800 → <span class="hl">£ 7.700 (libras esterlinas)</span></td></tr>
+<tr><td>2</td><td>Fragmento de cartão de embarque: “PASSENGER: SILVA/F … TO: <span class="hl">…THROW</span> · TERMINAL 5 · SEAT 2A”</td></tr>
+<tr><td>3</td><td>Guardanapo com a anotação “Thames Meridian — 10h”</td></tr></table>
+<p class="note">Dica do agente Lula: compare o nome do aeroporto com os dados das cidades no mapa.</p>` },
+  doc_lon_extrato: { city: "london", style: "bank", financial: true, title: "Extrato — Thames Meridian Private Bank", clue: "lon_extrato",
+    sub: "Conta 7781-22 · Titular: BRISA OFFSHORE HOLDINGS",
+    body: `<table><tr><th>Data</th><th>Histórico</th><th>Entrada</th><th>Saída</th></tr>
+<tr><td>04/03</td><td>TED internacional — origem Brasil</td><td>US$ 15.000.000</td><td></td></tr>
+<tr><td>06/03</td><td>Transferência — <span class="hl">LAGOSTA AZUL PARTICIPAÇÕES</span></td><td></td><td>US$ 14.990.000</td></tr>
+<tr><td>06/03</td><td>Tarifa “discrição premium”</td><td></td><td>US$ 10.000</td></tr></table>
+<p><b>Conta de destino:</b> Lagosta Azul Participações · moeda da conta: <span class="hl">TRY (lira turca)</span></p>`, stamp: "SIGILOSO" },
+  doc_ist_ouro: { city: "istanbul", style: "invoice", financial: true, title: "Nota fiscal de venda de ouro", clue: "ist_ouro",
+    sub: "Joalheria fictícia do Grande Bazar · Kapalıçarşı",
+    body: `<table><tr><th>Item</th><th>Qtd.</th><th>Valor</th></tr>
+<tr><td>Barras de ouro 1 kg (24 quilates)</td><td>40</td><td>₺ 480.000.000</td></tr></table>
+<p><b>Comprador:</b> Lagosta Azul Participações (paga por transferência da conta em TRY)<br>
+<b>Entrega:</b> em mãos, no hotel, ao <span class="hl">Sr. F. Silva</span>, que assinou o recibo.</p>
+<p class="note">Observação da vendedora: “Cliente pediu caixas discretas, próprias para viagem aérea.”</p>`, stamp: "PAGO" },
+  doc_ist_voo: { city: "istanbul", style: "ticket", financial: false, title: "2ª via de cartão de embarque", clue: "ist_voo",
+    sub: "Companhia aérea fictícia Anatolia Wings",
+    body: `<table><tr><th>Passageiro</th><td>SILVA / F</td></tr><tr><th>De</th><td>IST — Istambul</td></tr>
+<tr><th>Para</th><td><span class="hl">TLV — Ben Gurion</span></td></tr><tr><th>Duração</th><td>≈ 2h05</td></tr>
+<tr><th>Bagagem</th><td>1 volume de mão “muito pesado” (anotação do balcão)</td></tr></table>` },
+  doc_tlv_cripto: { city: "telaviv", style: "report", financial: true, title: "Relatório interno — BlockLagosta", clue: "tlv_cripto",
+    sub: "Startup BlockLagosta · Projeto LagostaCoin",
+    body: `<p><b>Resumo:</b> ativo lastreado em 40 kg de ouro recebidos da <span class="hl">Lagosta Azul Participações</span>.</p>
+<table><tr><th>Etapa</th><th>Status</th></tr>
+<tr><td>Venda do ouro e emissão de LagostaCoin</td><td>Concluída</td></tr>
+<tr><td>Transferência do saldo para a <span class="hl">Kintsugi Exchange</span></td><td>Concluída</td></tr>
+<tr><td>Saque em moeda local (<span class="hl">JPY — iene</span>)</td><td>Agendado</td></tr></table>
+<p class="note">Anotação a caneta: “F. quer tudo fora antes do anúncio do colapso.”</p>`, stamp: "INTERNO" },
+  doc_tok_saque: { city: "tokyo", style: "bank", financial: true, title: "Registro de saques — Kintsugi Exchange", clue: "tok_saque",
+    sub: "Carteira LGC-0xF5 · Shibuya, Tóquio",
+    body: `<table><tr><th>Data</th><th>Operação</th><th>Valor</th></tr>
+<tr><td>09/03</td><td>Venda de LagostaCoin</td><td>¥ 1.900.000.000</td></tr>
+<tr><td>09/03</td><td>Conversão</td><td><span class="hl">AUD 18.000.000 (dólar australiano)</span></td></tr>
+<tr><td>09/03</td><td>Envio</td><td>Southern Cross Bank — conta “Maré Mansa Holdings”</td></tr></table>`, stamp: "RASTREADO" },
+  doc_tok_iate: { city: "tokyo", style: "registry", financial: true, title: "Contrato de compra e venda de embarcação", clue: "tok_iate",
+    sub: "Escritório náutico de Yokohama (fictício)",
+    body: `<table><tr><th>Embarcação</th><td>Iate de luxo <span class="hl">“Maré Mansa”</span>, 32 m</td></tr>
+<tr><th>Comprador</th><td>Maré Mansa Holdings</td></tr><tr><th>Procurador</th><td><span class="hl">F. Silva</span></td></tr>
+<tr><th>Entrega</th><td>Marina de <span class="hl">Darling Harbour</span></td></tr><tr><th>Pagamento</th><td>AUD, à vista</td></tr></table>`, stamp: "ASSINADO" },
+  doc_syd_conta: { city: "sydney", style: "bank", financial: true, title: "Extrato — Southern Cross Bank", clue: "syd_conta",
+    sub: "Conta 4410-9 · Titular: MARÉ MANSA HOLDINGS",
+    body: `<table><tr><th>Data</th><th>Histórico</th><th>Valor</th></tr>
+<tr><td>09/03</td><td>Crédito — Kintsugi Exchange (Tóquio)</td><td>AUD 18.000.000</td></tr>
+<tr><td>10/03</td><td>Débito — taxa de marina, Darling Harbour</td><td>AUD 42.000</td></tr></table>
+<p><b>Procurador com poderes plenos:</b> <span class="hl">F. Silva</span></p>`, stamp: "SIGILOSO" },
+  doc_mia_reserva: { city: "miami", style: "ticket", financial: false, title: "Reserva — Hotel Flamingo Rosa", clue: "mia_isca",
+    sub: "Miami Beach · Sistema de reservas",
+    body: `<table><tr><th>Hóspede</th><td>F. Silva</td></tr><tr><th>Pagamento</th><td>Antecipado, em dinheiro, por terceiro</td></tr>
+<tr><th>Check-in</th><td><span class="hl">NÃO REALIZADO</span></td></tr></table>
+<p class="note">A reserva foi feita no mesmo dia em que o suspeito comprou a passagem real em Nova York.</p>` },
+  doc_rom_banco: { city: "rome", style: "memo", financial: false, title: "Memorando — Banca Tiberina", clue: "rom_conta",
+    sub: "Departamento de cadastro · arquivo morto",
+    body: `<p>Pedido de abertura de conta da <b>Brisa Offshore Holdings</b> <span class="hl">recusado há dois anos</span> por documentação incompleta. Nenhum contato posterior.</p>` }
+};
+
+/* ---------------------------------------------------------------------
+   TESTEMUNHAS
+   Respostas por assunto: visto | cidade | empresa | transferencia | viagem
+   Uma resposta pode revelar uma pista ({ t: texto, clue: id }).
+   --------------------------------------------------------------------- */
+const QUESTIONS = {
+  visto: "O senhor viu alguém com estas características? (terno escuro, óculos escuros, pasta executiva)",
+  cidade: "Flavitcho esteve nesta cidade?",
+  empresa: "Você sabe alguma coisa sobre a empresa investigada?",
+  transferencia: "Foi mencionada alguma transferência bancária?",
+  viagem: "Alguém comentou sobre uma viagem internacional?"
+};
+
+const WITNESSES = {
+  /* Nova York */
+  ny_dolores: { city: "ny", name: "Dolores Whitaker", job: "Concierge do Gramercy Imperial",
+    desc: "Trabalha no hotel há 30 anos e jura que nunca esquece um rosto — nem uma gorjeta mesquinha.",
+    intro: "Ah, o senhor da 2104? Deixou uma gorjeta de um dólar e um monte de perguntas esquisitas.",
+    look: { skin: "#f0c8a8", hair: "#b9b9b9", hairStyle: "bun", suit: "#6a1f3a", female: true, glasses: "reading", bg: "#3a2a4a" },
+    answers: {
+      visto: { t: "Terno escuro, óculos escuros até no café da manhã… e uma pasta de couro com “F.S.” em dourado. Ele não largava aquela pasta nem para assinar a conta.", clue: "ny_pasta" },
+      cidade: { t: "Ficou três noites. Saía cedo, voltava tarde, sempre falando baixo ao telefone." },
+      empresa: { t: "Chegavam envelopes de uma tal “Brisa”. Ele os abria no elevador, olhando para os lados." },
+      transferencia: { t: "Na véspera da partida, pediu que eu passasse um fax para um banco chamado Thames Meridian. Escreveu: “confirmar chegada dos fundos da Brisa”.", clue: "ny_thames" },
+      viagem: { t: "Perguntou onde comprar um bom guarda-chuva “para uma cidade de chuva fina, ônibus vermelhos de dois andares e um relógio famoso numa torre”.", clue: "ny_onibus" }
+    } },
+  ny_rafa: { city: "ny", name: "Rafael “Rafa” Montoya", job: "Taxista",
+    desc: "Dirige um táxi amarelo há 15 anos e fala português com sotaque de Porto Rico.",
+    intro: "Eu levei esse cara! Com uma pasta grudada no peito como se fosse um bebê.",
+    look: { skin: "#c48b62", hair: "#1e1e1e", hairStyle: "short", suit: "#d4a017", hat: "cap", mustache: true, bg: "#3d3a1a" },
+    answers: {
+      visto: { t: "Terno escuro, óculos escuros, e mandou eu desligar o rádio porque “a música era muito popular”." },
+      cidade: { t: "Peguei ele no Gramercy e deixei no JFK. Pagou em dinheiro e não esperou o troco." },
+      empresa: { t: "Empresa? Ele só falava de “brisa”. Achei que era sobre o tempo." },
+      transferencia: { t: "Ao telefone ele disse: “o banco de Londres já confirmou?”. Depois ficou mudo." },
+      viagem: { t: "Falou bem alto ao telefone que ia “tomar sol em Miami”. Mas, no aeroporto, mandou parar no terminal dos voos para a Europa. Esquisito, né?", clue: "ny_isca" }
+    } },
+
+  /* Londres */
+  lon_nigel: { city: "london", name: "Nigel Pembroke", job: "Bartender do The Crooked Ledger",
+    desc: "Serve cerveja a banqueiros há décadas. Diz que dá para saber quanto alguém roubou pelo tamanho do relógio.",
+    intro: "O cavalheiro de óculos escuros? Bebeu chá. Num pub! Isso a gente não esquece.",
+    look: { skin: "#f2cfb3", hair: "#c46b2c", hairStyle: "short", suit: "#2f4f2f", beard: true, bg: "#2a3a2a" },
+    answers: {
+      visto: { t: "Relógio dourado do tamanho de um pires. Barba impecável, nem sombra de bigode. E a pasta sempre no colo.", clue: "lon_relogio" },
+      cidade: { t: "Esteve aqui duas tardes seguidas. Sempre na mesa do canto, de costas para a parede." },
+      empresa: { t: "Mencionou uma tal “Lagosta”. Achei que ia pedir frutos do mar. Num pub!" },
+      transferencia: { t: "Disse ao telefone: “manda tudo para a Lagosta antes que alguém pergunte”." },
+      viagem: { t: "Falou que ia “comer kebab de verdade, visitar a Mesquita Azul e pechinchar no Grande Bazar”.", clue: "lon_mesquita" }
+    } },
+  lon_priya: { city: "london", name: "Priya Raman", job: "Analista de compliance do Thames Meridian",
+    desc: "Responsável por identificar operações suspeitas. Seus alertas foram ignorados pela diretoria.",
+    intro: "Eu avisei a diretoria. Ninguém me ouviu. Agora vocês me ouvem?",
+    look: { skin: "#a8714f", hair: "#111", hairStyle: "long", suit: "#1f3a7a", female: true, bg: "#1f2a4a" },
+    answers: {
+      visto: { t: "Ele veio pessoalmente assinar papéis. Terno escuro, óculos escuros dentro do banco. O gerente achou “elegante”." },
+      cidade: { t: "Esteve na agência há poucos dias. Saiu direto para o aeroporto, segundo o motorista do banco." },
+      empresa: { t: "O diretor formal da Lagosta Azul é um tal Gérson Peixoto, um laranja. Mas a procuração com plenos poderes foi assinada por F. Silva.", clue: "lon_procuracao" },
+      transferencia: { t: "Abri o relatório de transação suspeita nº 4471: Brisa → Lagosta Azul, valores fracionados logo abaixo do limite de alerta.", clue: "lon_compliance" },
+      viagem: { t: "A conta de destino é em liras turcas. Para onde você acha que o dinheiro — e o dono — foram?" }
+    } },
+
+  /* Istambul */
+  ist_ayse: { city: "istanbul", name: "Ayşe Demir", job: "Joalheira do Grande Bazar",
+    desc: "Terceira geração de joalheiros. Pesa ouro de olhos fechados e desconfia de gente que não regateia.",
+    intro: "Ele não pechinchou. Nem um pouquinho! Aqui no Bazar isso é muito suspeito.",
+    look: { skin: "#d9a882", hair: "#3a1f12", hairStyle: "long", suit: "#7a2a5a", female: true, bg: "#4a2a3a" },
+    answers: {
+      visto: { t: "Terno escuro e óculos escuros com 30 graus lá fora! Pagou abrindo uma pasta de couro com “F.S.” em dourado.", clue: "ist_desc" },
+      cidade: { t: "Esteve na loja duas vezes: uma para encomendar, outra para receber o ouro no hotel." },
+      empresa: { t: "A nota saiu em nome da Lagosta Azul Participações. O pagamento veio de uma conta em liras." },
+      transferencia: { t: "Transferência gorda, da conta em liras da Lagosta Azul. Conferi três vezes." },
+      viagem: { t: "Quis saber se o ouro passaria pela alfândega de um país cuja moeda é o novo shekel e onde se fala hebraico.", clue: "ist_shekel" }
+    } },
+  ist_mehmet: { city: "istanbul", name: "Mehmet Kaya", job: "Taxista",
+    desc: "Atravessa o Bósforo vinte vezes por dia e conhece todos os atalhos da cidade.",
+    intro: "Passageiro pesado, mala pesada, gorjeta leve.",
+    look: { skin: "#c99572", hair: "#222", hairStyle: "short", suit: "#4a4a4a", mustache: true, bg: "#3a3a2a" },
+    answers: {
+      visto: { t: "Terno escuro, óculos escuros. Não deixou eu colocar a pasta no porta-malas." },
+      cidade: { t: "Levei ele do hotel ao Aeroporto de Istambul, ontem bem cedo." },
+      empresa: { t: "Pediu para eu passar em Karaköy, num escritório com uma placa de lagosta azul. Saiu de lá com uma agenda na mão… e voltou sem ela." },
+      transferencia: { t: "Disso eu não sei. Eu só aceito dinheiro vivo." },
+      viagem: { t: "Disse que o voo era curtinho, umas duas horas, para o sudeste, do outro lado do Mediterrâneo oriental.", clue: "ist_taxi" }
+    } },
+
+  /* Tel Aviv */
+  tlv_noa: { city: "telaviv", name: "Noa Levi", job: "Salva-vidas da Praia Gordon",
+    desc: "Vigia a praia do alto da torre e já viu de tudo — menos alguém de terno na areia.",
+    intro: "Ninguém vem à praia de terno. NINGUÉM. Por isso eu lembro dele.",
+    look: { skin: "#d6a47e", hair: "#6b3e1e", hairStyle: "long", suit: "#d63a3a", female: true, bg: "#1f5a6a" },
+    answers: {
+      visto: { t: "Terno escuro, óculos escuros, sentado na areia abraçado a uma pasta de couro. Recusou até tirar o paletó.", clue: "tlv_praia" },
+      cidade: { t: "Ficou dois dias na praia, sempre no mesmo lugar, mexendo no celular." },
+      empresa: { t: "Ouvi ele falar de “Block-alguma-coisa” no Boulevard Rothschild." },
+      transferencia: { t: "Disse ao telefone: “converte tudo e manda para a corretora lá do Japão”." },
+      viagem: { t: "Pediu a um turista que o ensinasse a dizer “arigatô” e perguntou se o hotel ficava perto do cruzamento de pedestres mais movimentado do mundo.", clue: "tlv_arigato" }
+    } },
+  tlv_yossi: { city: "telaviv", name: "Yossi Ben-Ami", job: "Investigador financeiro",
+    desc: "Especialista em rastrear criptomoedas. Fala rápido e anda com três celulares.",
+    intro: "Criptomoeda não é invisível. Só é chata de rastrear. Por sorte, eu adoro coisas chatas.",
+    look: { skin: "#e0b08a", hair: "#2a2a2a", hairStyle: "short", suit: "#2a3a5a", glasses: "reading", beard: true, bg: "#2a2a4a" },
+    answers: {
+      visto: { t: "Vi as câmeras da BlockLagosta: homem de terno escuro e óculos escuros entrando com uma pasta de couro." },
+      cidade: { t: "Esteve aqui, sim. A BlockLagosta abriu as portas só para ele, numa madrugada." },
+      empresa: { t: "A BlockLagosta foi registrada pela própria Lagosta Azul. Uma startup criada só para lavar o ouro." },
+      transferencia: { t: "Rastreei a carteira da LagostaCoin: o saque foi agendado numa corretora do bairro de Shibuya.", clue: "tlv_shibuya" },
+      viagem: { t: "Um voo longo para o Extremo Oriente saiu pouco depois do último movimento da carteira. Coincidência? Duvido." }
+    } },
+
+  /* Tóquio */
+  tok_haruto: { city: "tokyo", name: "Haruto Sato", job: "Recepcionista do Ryokan Sakura",
+    desc: "Educado, minucioso e incapaz de esquecer um hóspede que entra de sapatos no tatame.",
+    intro: "Ele entrou de sapatos no tatame. Eu jamais esquecerei.",
+    look: { skin: "#f0cfa8", hair: "#111", hairStyle: "short", suit: "#2a2a3a", bg: "#3a2a2a" },
+    answers: {
+      visto: { t: "Assinou o registro com a mão do relógio dourado. Rosto bem barbeado, sem bigode, e a pasta com “F.S.” sobre o balcão.", clue: "tok_desc" },
+      cidade: { t: "Hospedou-se duas noites. Pediu para não ser incomodado — nem para o chá." },
+      empresa: { t: "Recebeu um envelope da Kintsugi Exchange e sorriu pela primeira vez." },
+      transferencia: { t: "Perguntou várias vezes se o hotel aceitava pagamento em dólares australianos." },
+      viagem: { t: "Pediu protetor solar fator 70: “Vou para o verão do hemisfério sul ver uma ópera com telhado em forma de velas de barco”.", clue: "tok_opera" }
+    } },
+  tok_yumi: { city: "tokyo", name: "Yumi Tanaka", job: "Jornalista investigativa",
+    desc: "Cobre fraudes com criptomoedas e já derrubou três esquemas de pirâmide.",
+    intro: "A LagostaCoin desabou ontem. Muita gente perdeu dinheiro. Menos um certo senhor de óculos escuros.",
+    look: { skin: "#f2d2b0", hair: "#2a1a1a", hairStyle: "long", suit: "#3a5a7a", female: true, glasses: "reading", bg: "#2a3a4a" },
+    answers: {
+      visto: { t: "Fotografei de longe: terno escuro, óculos escuros, pasta de couro. Sempre olhando para trás." },
+      cidade: { t: "Esteve na Kintsugi Exchange, em Shibuya, há dois dias." },
+      empresa: { t: "A LagostaCoin despencou 99% em uma hora — mas a carteira principal sacou tudo minutos antes.", clue: "tok_colapso" },
+      transferencia: { t: "O saque foi enorme e convertido na hora para outra moeda. A corretora tem os registros." },
+      viagem: { t: "Flagrei ele em Haneda comprando um chapéu de abas largas e um canguru de pelúcia.", clue: "tok_canguru" }
+    } },
+
+  /* Sydney */
+  syd_jack: { city: "sydney", name: "Jack O'Brien", job: "Mestre do porto de Darling Harbour",
+    desc: "Controla quem entra e quem sai da marina. Odeia papelada e adora uma boa fofoca.",
+    intro: "Iate novo, dono esquisito, cortinas fechadas ao meio-dia. Isso cheira a problema, parceiro.",
+    look: { skin: "#e8b48e", hair: "#d8d8d8", hairStyle: "short", suit: "#1f4a6a", beard: true, hat: "cap", bg: "#1f3a4a" },
+    answers: {
+      visto: { t: "Terno escuro e óculos escuros num iate, sob 35 graus. Só pode ser o seu homem.", clue: "syd_esconderijo" },
+      cidade: { t: "O dono do “Maré Mansa” chegou há dois dias e não desembarcou mais.", clue: "syd_esconderijo" },
+      empresa: { t: "O iate está registrado em nome da Maré Mansa Holdings. A taxa da marina foi paga por um banco daqui." },
+      transferencia: { t: "Pagou a taxa da marina por transferência do Southern Cross Bank, sem pestanejar." },
+      viagem: { t: "Pediu combustível para uma viagem longa no fim da semana. Eu, se fosse vocês, não demorava." }
+    } },
+  syd_olivia: { city: "sydney", name: "Olivia Chen", job: "Gerente do Southern Cross Bank",
+    desc: "Abriu a conta da Maré Mansa Holdings e agora se arrepende.",
+    intro: "Eu deveria ter desconfiado quando ele recusou o cafezinho e pediu “discrição premium”.",
+    look: { skin: "#f0d0b0", hair: "#151515", hairStyle: "bun", suit: "#2a2a5a", female: true, bg: "#2a2a4a" },
+    answers: {
+      visto: { t: "Óculos escuros dentro da agência, terno escuro e uma pasta com iniciais douradas." },
+      cidade: { t: "Esteve aqui há dois dias para abrir a conta. Pediu o endereço da marina de Darling Harbour." },
+      empresa: { t: "A Maré Mansa Holdings foi aberta com uma procuração em nome de F. Silva." },
+      transferencia: { t: "Recebemos AUD 18 milhões vindos de uma corretora de Tóquio. Está tudo no extrato." },
+      viagem: { t: "Perguntou se o banco tinha agências “em ilhas sem tratado de extradição”. Eu disse que não sabia." }
+    } },
+
+  /* Cidades fora da trilha */
+  la_jenny: { city: "la", name: "Jenny Ruiz", job: "Guia turística de Hollywood",
+    desc: "Conhece cada estrela da Calçada da Fama e cada sósia que tenta se passar por celebridade.",
+    intro: "Aquele de terno? É o Barry, figurante. Faz papel de espião há vinte anos.",
+    look: { skin: "#c9926a", hair: "#4a2a1a", hairStyle: "long", suit: "#e0a030", female: true, bg: "#4a3a1a" },
+    answers: {
+      visto: { t: "Gente de terno e óculos escuros aqui é o que não falta — quase todos estão num teste de elenco." },
+      cidade: { t: "Um político brasileiro fugitivo? Por aqui, não. Eu saberia: fofoca é comigo." },
+      empresa: { t: "A Brisa Filmes? Fechou faz anos. Era de uns produtores de Nebraska." },
+      viagem: { t: "Ninguém com essa descrição passou pelos meus tours. Talvez vocês estejam no lugar errado." }
+    } },
+  mia_carlos: { city: "miami", name: "Carlos Ibáñez", job: "Recepcionista do Hotel Flamingo Rosa",
+    desc: "Fala quatro idiomas e tem memória de elefante para reservas.",
+    intro: "A suíte reservada para o tal F. Silva continua intocada. Nem a cama foi desfeita.",
+    look: { skin: "#c48a5e", hair: "#1a1a1a", hairStyle: "short", suit: "#e05a8a", bg: "#4a2a3a" },
+    answers: {
+      visto: { t: "O único brasileiro por aqui é um rapaz de camisa florida vendendo cocos. Nada de terno." },
+      cidade: { t: "Não, nunca apareceu. A reserva foi paga por um mensageiro, em dinheiro." },
+      empresa: { t: "Nunca ouvi falar dessa Brisa. Aqui só tem brisa do mar." },
+      transferencia: { t: "Pagaram em dinheiro vivo. Nada de banco." },
+      viagem: { t: "Uma reserva que ninguém usa… parece coisa de quem queria que vocês viessem para cá." }
+    } },
+  par_amelie: { city: "paris", name: "Amélie Durand", job: "Fotógrafa de moda",
+    desc: "Fotografa todos os convidados da Semana de Moda — inclusive os que não querem ser fotografados.",
+    intro: "A brasileira de tailleur vermelho? Fotografei de todos os ângulos.",
+    look: { skin: "#f2d0b8", hair: "#a33a2a", hairStyle: "bun", suit: "#1a1a1a", female: true, bg: "#3a2a3a" },
+    answers: {
+      visto: { t: "Homem de terno escuro e pasta “F.S.”? Não passou por aqui. Só a Dama das Planilhas, de vermelho." },
+      cidade: { t: "Não. Se ele tivesse vindo, estaria nas minhas fotos." },
+      empresa: { t: "A Dama das Planilhas falou de “planilhas antigas da Brisa”, mas parecia mais interessada nos sapatos." },
+      viagem: { t: "Nenhuma pista dele por aqui. Talvez vocês devessem rever o caminho do dinheiro." }
+    } },
+  rom_giulia: { city: "rome", name: "Giulia Romano", job: "Guia turística",
+    desc: "Conta histórias do Império Romano com tanta emoção que os turistas esquecem de jogar a moeda na fonte.",
+    intro: "Um fugitivo? Aqui só os gladiadores fugiam — e eram pegos.",
+    look: { skin: "#e8bc96", hair: "#2a1a10", hairStyle: "long", suit: "#3a6a3a", female: true, bg: "#3a3a1a" },
+    answers: {
+      visto: { t: "Não vi ninguém assim. Aqui todo mundo usa tênis e boné, não terno." },
+      cidade: { t: "Não há sinal dele em Roma. Os hotéis do centro já foram consultados pela polícia local." },
+      empresa: { t: "Ouvi dizer que uma tal Brisa tentou abrir conta num banco daqui há anos. Não conseguiu." },
+      viagem: { t: "Todos os caminhos levam a Roma… mas o dele, aparentemente, não." }
+    } },
+  ber_klaus: { city: "berlin", name: "Klaus Becker", job: "Agente da polícia ferroviária",
+    desc: "Pontual, metódico e com um caderno de anotações impecável.",
+    intro: "O homem de bigode e mala de rodinhas? Já está identificado. Não é o seu suspeito.",
+    look: { skin: "#f0caa8", hair: "#c8a050", hairStyle: "short", suit: "#2a3a2a", hat: "cap", bg: "#2a3a3a" },
+    answers: {
+      visto: { t: "Terno escuro e óculos escuros, sim, mas com bigode farto e mala de rodinhas. Documento em nome de Otávio Brandão." },
+      cidade: { t: "Flavitcho Silva? Nenhum registro em Berlim. Verificamos hotéis, trens e aeroporto." },
+      empresa: { t: "O senhor Brandão disse que “só carregava malas” para um tal deputado. Não sabia de empresa nenhuma." },
+      viagem: { t: "Brandão veio de trem de Praga. Não tem passagem para lugar nenhum. Seu homem está em outro lugar." }
+    } },
+  pek_lin: { city: "beijing", name: "Lin Wei", job: "Artesão de couro",
+    desc: "Faz pastas sob medida para executivos do mundo todo.",
+    intro: "Lembro dessa encomenda: couro italiano, iniciais douradas, cliente muito exigente.",
+    look: { skin: "#eccba4", hair: "#111", hairStyle: "short", suit: "#5a3a2a", glasses: "reading", bg: "#4a2a1a" },
+    answers: {
+      visto: { t: "Nunca vi o cliente pessoalmente. A pasta “F.S.” foi enviada para um hotel em Nova York." },
+      cidade: { t: "Ele nunca esteve em Pequim, que eu saiba. Tudo foi feito por e-mail." },
+      empresa: { t: "Quem pagou foi a Brisa Offshore. Pagaram adiantado, coisa rara." },
+      viagem: { t: "Não sei para onde ele foi. Só sei para onde a pasta foi: Nova York." }
+    } }
+};
+
+/* Respostas genéricas para assuntos sem informação (variam por testemunha) */
+const FALLBACK_ANSWERS = [
+  "Sinto muito, não sei nada sobre isso.",
+  "Hmm… não. Ninguém comentou nada parecido comigo.",
+  "Isso eu não posso afirmar. Prefiro não inventar.",
+  "Não faço ideia. Talvez outra pessoa possa ajudar.",
+  "Nunca ouvi falar. Mas, se ouvir, aviso vocês."
+];
+
+/* ---------------------------------------------------------------------
+   FALAS DO AGENTE LULA (variadas por contexto)
+   --------------------------------------------------------------------- */
+const LULA_LINES = {
+  start: [
+    "Vamos por partes. Primeiro precisamos descobrir para onde foi o dinheiro.",
+    "Uma investigação dessas exige paciência, documentos e atenção aos detalhes.",
+    "Dinheiro não desaparece por mágica. Alguém deixou rastros."
+  ],
+  arrive: [
+    "Flavitcho pode ter atravessado o oceano, mas deixou algumas pistas pelo caminho.",
+    "Cidade nova, perguntas novas. Vamos começar pelos lugares onde o dinheiro costuma circular.",
+    "Desembarcamos! Deixa eu ajeitar o chapéu e vamos ao trabalho.",
+    "Jet lag é para os fracos, parceiro. Vamos investigar.",
+    "Sabe o que eu aprendi em quarenta anos de investigação? Todo fugitivo precisa comer, dormir e pagar alguém."
+  ],
+  clue: [
+    "Temos uma nova pista! Agora precisamos descobrir o que ela significa.",
+    "Anota aí, parceiro: cada detalhe conta.",
+    "Olha só! Isso se encaixa com o que já sabemos.",
+    "Pista boa é assim: pequena, discreta e cheia de consequências."
+  ],
+  doc: [
+    "Esse documento parece importante. Vamos conferir se os números batem.",
+    "Olha a data, olha o valor, olha o beneficiário. Papel não mente.",
+    "Quem faz contas com dinheiro dos outros sempre esquece uma vírgula pelo caminho."
+  ],
+  nothing: [
+    "Já vasculhamos esse lugar de cima a baixo. Nada de novo aqui.",
+    "Revirar o mesmo lugar duas vezes só gasta sola de sapato.",
+    "Esse local já nos deu o que tinha. Bora para o próximo."
+  ],
+  cold: [
+    "Ninguém aqui viu nosso homem de terno. Acho que a trilha esfriou nesta cidade.",
+    "Hmm… nenhum rastro dele. Vamos rever as pistas antes de pegar outro avião.",
+    "Pegamos um desvio, parceiro. Acontece com os melhores. Vamos voltar ao rastro do dinheiro."
+  ],
+  idle: [
+    "Dica: abra o painel de pistas e cruze as evidências. Pista confirmada vale mais que dez boatos.",
+    "Lembre-se: a ficha de cada cidade no mapa mostra moeda, idioma e aeroporto. Isso ajuda a decifrar as pistas.",
+    "Não adianta só correr. Investigação boa é a que sabe para onde está indo."
+  ],
+  wrongId: [
+    "Calma, parceiro. As evidências ainda não sustentam essa identificação.",
+    "Esse aí não bate com o que as testemunhas disseram. Vamos comparar com mais cuidado.",
+    "Se a gente acusa a pessoa errada, o verdadeiro culpado agradece."
+  ],
+  idOk: [
+    "É ele! As descrições, a pasta, as empresas… tudo aponta para Flavitcho Silva.",
+    "Identificação confirmada. Agora precisamos de um mandado bem fundamentado."
+  ],
+  warrantFail: [
+    "Juiz nenhum assina isso ainda. Faltam provas, parceiro.",
+    "Mandado sem fundamento é papel que voa com o vento. Vamos reforçar as evidências."
+  ],
+  warrantOk: [
+    "Mandado emitido! Agora é só encontrar o esconderijo.",
+    "Com esse papel na mão, ninguém escapa. Vamos atrás dele!"
+  ],
+  captureFail: [
+    "Ainda não é hora de dar o bote. Falta alguma coisa.",
+    "Capturar sem certeza é pedir para ele fugir de novo."
+  ],
+  timeLow: [
+    "O relógio está correndo, parceiro! Precisamos agir rápido.",
+    "Faltam poucas horas. Cada passo agora precisa contar."
+  ],
+  win: [
+    "Flavitcho foi localizado! A investigação reuniu as evidências necessárias para concluir o caso.",
+    "Bom trabalho, agente! Você seguiu as pistas, rastreou as operações financeiras e descobriu o esconderijo.",
+    "Mais um caso encerrado. O dinheiro deixou rastros, e a investigação seguiu cada um deles."
+  ],
+  lose: [
+    "Flavitcho conseguiu escapar antes que a investigação fosse concluída. Precisamos rever as pistas e tentar novamente!",
+    "Dessa vez ele foi mais rápido. Mas quem deixa rastro sempre pode ser encontrado. Vamos de novo?"
+  ]
+};
+</script>
+<script>
+"use strict";
+/* =====================================================================
+   ARTE ORIGINAL EM SVG (sem dependência de imagens externas)
+   ===================================================================== */
+const Art = {
+  /* Agente Lula: senhor de barba grisalha, chapéu fedora e sobretudo.
+     mood: normal | happy | think | sad | cheer */
+  lula(mood = "normal") {
+    const skin = "#e3ab84", skinShade = "#c98d66", beard = "#d3d3d9", beardShade = "#a9a9b4";
+    let eyes, brows, mouth, arms = "";
+    if (mood === "happy" || mood === "cheer") {
+      eyes = `<path d="M78 97 Q84 90 90 97" stroke="#2b2b2b" stroke-width="3.2" fill="none" stroke-linecap="round"/><path d="M110 97 Q116 90 122 97" stroke="#2b2b2b" stroke-width="3.2" fill="none" stroke-linecap="round"/>`;
+      brows = `<path d="M75 84 Q84 78 93 82" stroke="#9a9aa4" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M107 82 Q116 78 125 84" stroke="#9a9aa4" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+      mouth = `<path d="M86 135 Q100 152 114 135 Q100 142 86 135 Z" fill="#7a3a2e"/><path d="M90 137 Q100 141 110 137" stroke="#fff" stroke-width="2" fill="none"/>`;
+    } else if (mood === "think") {
+      eyes = `<circle cx="84" cy="96" r="3.6" fill="#2b2b2b"/><path d="M110 97 L122 96" stroke="#2b2b2b" stroke-width="3.2" stroke-linecap="round"/>`;
+      brows = `<path d="M75 82 Q84 76 93 81" stroke="#9a9aa4" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M107 88 Q116 86 125 88" stroke="#9a9aa4" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+      mouth = `<path d="M92 139 Q102 136 110 140" stroke="#7a3a2e" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    } else if (mood === "sad") {
+      eyes = `<circle cx="84" cy="98" r="3.4" fill="#2b2b2b"/><circle cx="116" cy="98" r="3.4" fill="#2b2b2b"/>`;
+      brows = `<path d="M76 86 Q84 84 92 89" stroke="#9a9aa4" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M108 89 Q116 84 124 86" stroke="#9a9aa4" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+      mouth = `<path d="M90 142 Q100 134 110 142" stroke="#7a3a2e" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    } else {
+      eyes = `<circle cx="84" cy="96" r="3.8" fill="#2b2b2b"/><circle cx="116" cy="96" r="3.8" fill="#2b2b2b"/><circle cx="85.3" cy="94.8" r="1.2" fill="#fff"/><circle cx="117.3" cy="94.8" r="1.2" fill="#fff"/>`;
+      brows = `<path d="M75 85 Q84 80 93 84" stroke="#9a9aa4" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M107 84 Q116 80 125 85" stroke="#9a9aa4" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+      mouth = `<path d="M89 136 Q100 146 111 136" stroke="#7a3a2e" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    }
+    if (mood === "cheer") {
+      arms = `<path d="M40 200 L18 120 L34 114 L58 185 Z" fill="#b8925a"/><circle cx="24" cy="112" r="11" fill="${skin}"/>
+              <path d="M160 200 L182 120 L166 114 L142 185 Z" fill="#b8925a"/><circle cx="176" cy="112" r="11" fill="${skin}"/>`;
+    }
+    return `<svg viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      ${arms}
+      <path d="M26 230 C28 178 60 160 100 158 C140 160 172 178 174 230 Z" fill="#b8925a"/>
+      <path d="M100 160 L74 168 L90 230 L100 230 Z" fill="#9c7845"/><path d="M100 160 L126 168 L110 230 L100 230 Z" fill="#9c7845"/>
+      <path d="M84 162 L100 202 L116 162 Z" fill="#dfe9f5"/>
+      <path d="M96 170 L104 170 L107 204 L100 214 L93 204 Z" fill="#1f3a7a"/>
+      <g transform="translate(132 188)"><path d="M0 0 L16 0 L16 10 Q8 20 0 10 Z" fill="#f2c14e" stroke="#9c6f17" stroke-width="1.5"/><text x="8" y="10" font-size="7" text-anchor="middle" fill="#6b4a0e" font-weight="900">★</text></g>
+      <rect x="88" y="136" width="24" height="28" fill="${skinShade}"/>
+      <ellipse cx="56" cy="106" rx="8" ry="12" fill="${skinShade}"/><ellipse cx="144" cy="106" rx="8" ry="12" fill="${skinShade}"/>
+      <ellipse cx="100" cy="100" rx="44" ry="50" fill="${skin}"/>
+      <path d="M57 88 Q56 72 66 66 L66 96 Z" fill="#c4c4cc"/><path d="M143 88 Q144 72 134 66 L134 96 Z" fill="#c4c4cc"/>
+      <path d="M58 100 C57 150 80 170 100 170 C120 170 143 150 142 100 C136 120 124 127 100 127 C76 127 64 120 58 100 Z" fill="${beard}"/>
+      <path d="M66 128 C72 150 86 162 100 164 C114 162 128 150 134 128" stroke="${beardShade}" stroke-width="2" fill="none" opacity=".6"/>
+      ${mouth}
+      <path d="M78 129 C86 120 95 121 100 126 C105 121 114 120 122 129 C113 133 105 131 100 129 C95 131 87 133 78 129 Z" fill="#bdbdc6"/>
+      <path d="M100 96 Q93 113 97 118 Q102 121 107 117" stroke="${skinShade}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <ellipse cx="74" cy="112" rx="7" ry="4" fill="#e88f7a" opacity=".45"/><ellipse cx="126" cy="112" rx="7" ry="4" fill="#e88f7a" opacity=".45"/>
+      ${eyes}${brows}
+      <path d="M84 74 Q100 70 116 74" stroke="${skinShade}" stroke-width="1.4" fill="none" opacity=".7"/>
+      <ellipse cx="100" cy="63" rx="64" ry="12" fill="#4a4036"/>
+      <path d="M62 63 C63 30 80 21 100 24 C120 21 137 30 138 63 Z" fill="#5a4e42"/>
+      <rect x="63" y="51" width="74" height="9" fill="#2a231d"/>
+      <path d="M88 28 Q100 36 112 28" stroke="#3e352c" stroke-width="3" fill="none"/>
+    </svg>`;
+  },
+
+  /* Flavitcho: terno escuro, óculos escuros, pasta "F.S.", relógio dourado.
+     mood: normal | smug | caught */
+  flavitcho(mood = "normal") {
+    const skin = "#e2b08c", shade = "#c4906c";
+    const mouth = mood === "caught"
+      ? `<path d="M88 136 Q100 128 112 136" stroke="#6a2a22" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M128 84 q4 8 0 12 q-4 -4 0 -12" fill="#7fc8ff"/>`
+      : `<path d="M88 134 Q104 142 114 130" stroke="#6a2a22" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    const glassesTilt = mood === "caught" ? "rotate(-8 100 98)" : "";
+    return `<svg viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M24 230 C26 176 60 158 100 156 C140 158 174 176 176 230 Z" fill="#1d2430"/>
+      <path d="M100 158 L72 166 L92 230 L100 230 Z" fill="#141a23"/><path d="M100 158 L128 166 L108 230 L100 230 Z" fill="#141a23"/>
+      <path d="M84 160 L100 200 L116 160 Z" fill="#f4f4f4"/>
+      <path d="M96 168 L104 168 L107 204 L100 214 L93 204 Z" fill="#3a3f4a"/><circle cx="100" cy="186" r="2.2" fill="#f2c14e"/>
+      <rect x="88" y="132" width="24" height="30" fill="${shade}"/>
+      <ellipse cx="57" cy="104" rx="7" ry="11" fill="${shade}"/><ellipse cx="143" cy="104" rx="7" ry="11" fill="${shade}"/>
+      <ellipse cx="100" cy="100" rx="43" ry="50" fill="${skin}"/>
+      <path d="M57 92 C54 52 80 40 104 42 C130 42 148 58 143 92 C138 70 120 62 100 64 C80 64 64 72 57 92 Z" fill="#17120f"/>
+      <path d="M78 52 Q100 42 128 54" stroke="#4a4038" stroke-width="3" fill="none" opacity=".8"/>
+      <path d="M74 82 Q84 76 94 80" stroke="#17120f" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M106 76 Q118 68 128 76" stroke="#17120f" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <g transform="${glassesTilt}">
+        <rect x="70" y="88" width="27" height="18" rx="6" fill="#0b0d12"/><rect x="104" y="88" width="27" height="18" rx="6" fill="#0b0d12"/>
+        <rect x="96" y="93" width="9" height="3" fill="#0b0d12"/><path d="M70 94 L58 92 M131 94 L143 92" stroke="#0b0d12" stroke-width="3"/>
+        <path d="M74 92 L82 92" stroke="#5a7a9a" stroke-width="2" opacity=".8"/><path d="M108 92 L116 92" stroke="#5a7a9a" stroke-width="2" opacity=".8"/>
+      </g>
+      <path d="M100 100 Q95 114 99 118 Q103 120 107 117" stroke="${shade}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <path d="M70 120 Q100 150 130 120" stroke="${shade}" stroke-width="1.2" fill="none" opacity=".5"/>
+      ${mouth}
+      <g transform="translate(118 168)">
+        <rect x="18" y="10" width="20" height="10" rx="4" fill="#1d2430"/>
+        <rect x="14" y="6" width="10" height="8" rx="2" fill="#f2c14e" stroke="#9c6f17"/>
+        <rect x="0" y="20" width="64" height="44" rx="5" fill="#5a3a22" stroke="#3a2412" stroke-width="2"/>
+        <path d="M22 20 Q32 10 42 20" stroke="#3a2412" stroke-width="4" fill="none"/>
+        <text x="32" y="48" font-size="15" text-anchor="middle" fill="#f2c14e" font-weight="900" font-family="Georgia,serif">F.S.</text>
+      </g>
+    </svg>`;
+  },
+
+  /* Retrato paramétrico para suspeitos e testemunhas */
+  person(o = {}) {
+    if (o.kind === "flavitcho") return Art.flavitcho("normal");
+    const skin = o.skin || "#e0b090", hair = o.hair || "#2a2a2a", suit = o.suit || "#2a3a5a", bg = o.bg || "#22325a";
+    let hairSvg = "";
+    switch (o.hairStyle) {
+      case "long": hairSvg = `<path d="M30 70 C26 30 94 30 90 70 L92 104 L80 92 L80 58 C70 50 50 50 40 58 L40 92 L28 104 Z" fill="${hair}"/>`; break;
+      case "bun": hairSvg = `<circle cx="60" cy="24" r="11" fill="${hair}"/><path d="M33 64 C30 32 90 32 87 64 C80 46 40 46 33 64 Z" fill="${hair}"/>`; break;
+      case "bald": hairSvg = ""; break;
+      default: hairSvg = `<path d="M34 62 C30 30 90 30 86 62 C80 46 40 46 34 62 Z" fill="${hair}"/>`;
+    }
+    const shirt = o.shirtPattern
+      ? `<path d="M22 140 C24 112 40 104 60 103 C80 104 96 112 98 140 Z" fill="${suit}"/><g fill="#ffe36a" opacity=".85"><circle cx="40" cy="122" r="4"/><circle cx="76" cy="126" r="4"/><circle cx="58" cy="134" r="3"/><circle cx="86" cy="136" r="3"/></g>`
+      : `<path d="M22 140 C24 112 40 104 60 103 C80 104 96 112 98 140 Z" fill="${suit}"/><path d="M52 104 L60 124 L68 104 Z" fill="#f2f2f2"/>${o.tie ? `<path d="M58 108 L62 108 L64 126 L60 132 L56 126 Z" fill="${o.tie}"/>` : ""}`;
+    const eyes = o.glasses === "dark"
+      ? `<rect x="40" y="64" width="17" height="10" rx="4" fill="#0b0d12"/><rect x="63" y="64" width="17" height="10" rx="4" fill="#0b0d12"/><rect x="56" y="67" width="8" height="2" fill="#0b0d12"/>`
+      : `<circle cx="49" cy="69" r="2.6" fill="#222"/><circle cx="71" cy="69" r="2.6" fill="#222"/>` +
+        (o.glasses === "reading" ? `<circle cx="49" cy="69" r="7" fill="none" stroke="#333" stroke-width="1.8"/><circle cx="71" cy="69" r="7" fill="none" stroke="#333" stroke-width="1.8"/><path d="M56 69 L64 69" stroke="#333" stroke-width="1.8"/>` : "");
+    const beard = o.beard ? `<path d="M36 76 C36 104 50 110 60 110 C70 110 84 104 84 76 C80 90 72 94 60 94 C48 94 40 90 36 76 Z" fill="${hair}" opacity=".9"/>` : "";
+    const goatee = o.goatee ? `<path d="M54 92 Q60 102 66 92 Z" fill="${hair}"/>` : "";
+    const mustache = o.mustache ? `<path d="M46 84 C52 78 58 80 60 83 C62 80 68 78 74 84 C68 86 62 85 60 84 C58 85 52 86 46 84 Z" fill="${hair}"/>` : "";
+    const mouth = `<path d="M52 89 Q60 94 68 89" stroke="#6a2a22" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+    let hat = "";
+    if (o.hat === "panama") hat = `<ellipse cx="60" cy="44" rx="40" ry="7" fill="#e8dcb0"/><path d="M38 44 C38 22 82 22 82 44 Z" fill="#efe4bd"/><rect x="38" y="36" width="44" height="5" fill="#3a2a1a"/>`;
+    if (o.hat === "cap") hat = `<path d="M34 50 C34 26 86 26 86 50 Z" fill="${o.capColor || "#c62d2a"}"/><path d="M80 48 L104 52 L84 54 Z" fill="${o.capColor || "#a3201d"}"/>`;
+    let acc = "";
+    if (o.accessory === "trolley") acc = `<g transform="translate(88 92)"><rect x="0" y="12" width="26" height="36" rx="4" fill="#111"/><path d="M8 12 L8 0 L18 0 L18 12" stroke="#666" stroke-width="2.5" fill="none"/><circle cx="6" cy="49" r="3" fill="#444"/><circle cx="20" cy="49" r="3" fill="#444"/></g>`;
+    if (o.accessory === "cane") acc = `<path d="M100 140 L100 96 Q100 88 108 88" stroke="#6a4a2a" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    if (o.accessory === "backpack") acc = `<path d="M30 108 L22 108 L20 140 L32 140 Z" fill="#2a5a8a"/><path d="M90 108 L98 108 L100 140 L88 140 Z" fill="#2a5a8a"/>`;
+    const female = o.female ? `<path d="M44 102 Q60 112 76 102" stroke="${suit}" stroke-width="4" fill="none"/>` : "";
+    return `<svg viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="120" height="140" fill="${bg}"/>
+      <circle cx="60" cy="60" r="50" fill="rgba(255,255,255,.05)"/>
+      ${o.hairStyle === "long" ? hairSvg : ""}
+      ${shirt}${female}
+      <rect x="53" y="88" width="14" height="18" fill="${skin}" opacity=".9"/>
+      <ellipse cx="60" cy="70" rx="25" ry="30" fill="${skin}"/>
+      ${o.hairStyle !== "long" ? hairSvg : `<path d="M35 62 C32 34 88 34 85 62 C78 46 42 46 35 62 Z" fill="${hair}"/>`}
+      ${beard}${goatee}${mouth}${mustache}${eyes}
+      <path d="M60 70 Q57 79 60 81" stroke="rgba(0,0,0,.25)" stroke-width="1.6" fill="none"/>
+      ${hat}${acc}
+    </svg>`;
+  },
+
+  /* Bandeiras simplificadas (originais, em SVG) */
+  flag(code) {
+    const star = (cx, cy, r, fill) => {
+      let p = "";
+      for (let i = 0; i < 10; i++) {
+        const a = Math.PI / 5 * i - Math.PI / 2, rr = i % 2 ? r * 0.42 : r;
+        p += (i ? "L" : "M") + (cx + rr * Math.cos(a)).toFixed(2) + " " + (cy + rr * Math.sin(a)).toFixed(2);
+      }
+      return `<path d="${p}Z" fill="${fill}"/>`;
+    };
+    const ukMini = `<rect width="30" height="20" fill="#012169"/><path d="M0 0L30 20M30 0L0 20" stroke="#fff" stroke-width="4"/><path d="M0 0L30 20M30 0L0 20" stroke="#C8102E" stroke-width="1.6"/><path d="M15 0V20M0 10H30" stroke="#fff" stroke-width="6"/><path d="M15 0V20M0 10H30" stroke="#C8102E" stroke-width="3.4"/>`;
+    let body = "";
+    switch (code) {
+      case "us": {
+        for (let i = 0; i < 13; i++) body += `<rect y="${i * 20 / 13}" width="30" height="${20 / 13 + .05}" fill="${i % 2 ? "#fff" : "#B22234"}"/>`;
+        body += `<rect width="13" height="10.8" fill="#3C3B6E"/>`;
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) body += `<circle cx="${1.6 + c * 2.5}" cy="${1.6 + r * 2.5}" r=".55" fill="#fff"/>`;
+        break;
+      }
+      case "gb": body = ukMini; break;
+      case "fr": body = `<rect width="10" height="20" fill="#0055A4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#EF4135"/>`; break;
+      case "it": body = `<rect width="10" height="20" fill="#009246"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#CE2B37"/>`; break;
+      case "de": body = `<rect width="30" height="6.67" fill="#000"/><rect y="6.67" width="30" height="6.67" fill="#DD0000"/><rect y="13.33" width="30" height="6.67" fill="#FFCE00"/>`; break;
+      case "tr": body = `<rect width="30" height="20" fill="#E30A17"/><circle cx="11" cy="10" r="5" fill="#fff"/><circle cx="12.3" cy="10" r="4" fill="#E30A17"/>` + star(17.3, 10, 2.4, "#fff"); break;
+      case "il": body = `<rect width="30" height="20" fill="#fff"/><rect y="2" width="30" height="2.6" fill="#0038b8"/><rect y="15.4" width="30" height="2.6" fill="#0038b8"/><path d="M15 6 L18.5 12 L11.5 12 Z M15 14 L11.5 8 L18.5 8 Z" fill="none" stroke="#0038b8" stroke-width="1"/>`; break;
+      case "jp": body = `<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="6" fill="#BC002D"/>`; break;
+      case "cn": body = `<rect width="30" height="20" fill="#DE2910"/>` + star(5, 5, 3, "#FFDE00") + star(10, 2, 1, "#FFDE00") + star(12, 4, 1, "#FFDE00") + star(12, 7, 1, "#FFDE00") + star(10, 9, 1, "#FFDE00"); break;
+      case "au": body = `<rect width="30" height="20" fill="#012169"/><g transform="scale(.5)">${ukMini}</g>` + star(7.5, 15, 2.2, "#fff") + star(24, 4, 1.1, "#fff") + star(20, 9, 1.1, "#fff") + star(27, 8, 1.1, "#fff") + star(24, 16, 1.2, "#fff"); break;
+    }
+    return `<svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${body}</svg>`;
+  },
+
+  /* Ilustração alternativa quando a foto da cidade falha */
+  skyline() {
+    return `<svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="240" cy="30" r="16" fill="#f2c14e" opacity=".8"/>
+      <g fill="#4fc3f7" opacity=".55"><rect x="10" y="60" width="26" height="60"/><rect x="40" y="40" width="22" height="80"/><rect x="66" y="70" width="30" height="50"/>
+      <rect x="100" y="20" width="18" height="100"/><path d="M109 4 L113 20 L105 20 Z"/><rect x="122" y="55" width="34" height="65"/><rect x="160" y="35" width="24" height="85"/>
+      <rect x="188" y="65" width="28" height="55"/><rect x="220" y="50" width="22" height="70"/><rect x="246" y="75" width="44" height="45"/></g>
+      <rect y="116" width="300" height="4" fill="#4fc3f7" opacity=".8"/></svg>`;
+  }
+};
+
+/* =====================================================================
+   MAPA-MÚNDI ILUSTRADO (projeção equirretangular aproximada)
+   ===================================================================== */
+const WorldMap = {
+  W: 1000, LAT_TOP: 80, LAT_BOTTOM: -56,
+  get H() { return this.W * (this.LAT_TOP - this.LAT_BOTTOM) / 360; },
+  project(lat, lon) { return [(lon + 180) / 360 * this.W, (this.LAT_TOP - lat) / 360 * this.W]; },
+  /* Contornos simplificados dos continentes [lon, lat] */
+  LAND: [
+    [[-168,66],[-162,70],[-140,70],[-125,71],[-95,72],[-80,73],[-62,66],[-55,52],[-66,45],[-70,42],[-76,38],[-81,31],[-80,25],[-82,29],[-90,30],[-97,27],[-97,21],[-90,21],[-87,21],[-88,16],[-83,10],[-79,9],[-82,8],[-86,12],[-92,15],[-105,20],[-110,24],[-112,30],[-115,30],[-110,23],[-118,34],[-124,40],[-124,48],[-135,58],[-150,60],[-165,62]],
+    [[-50,60],[-42,60],[-20,70],[-20,80],[-40,80],[-65,80],[-55,70]],
+    [[-79,9],[-72,12],[-62,10],[-50,0],[-35,-5],[-38,-13],[-41,-22],[-48,-28],[-53,-34],[-58,-38],[-65,-42],[-68,-52],[-72,-50],[-74,-40],[-71,-30],[-70,-18],[-76,-14],[-81,-5],[-78,2]],
+    [[-10,36],[-9,43],[-1,46],[-4,48],[2,51],[8,54],[9,57],[12,56],[18,55],[23,60],[21,64],[25,66],[18,70],[25,71],[40,68],[60,69],[70,73],[80,73],[100,77],[115,74],[140,72],[160,70],[180,68],[180,65],[170,60],[160,55],[157,51],[143,59],[137,54],[140,48],[132,43],[128,38],[126,35],[122,40],[118,38],[122,31],[120,25],[110,21],[108,16],[106,10],[104,9],[101,13],[100,7],[103,1],[98,8],[97,17],[92,22],[88,22],[80,15],[77,8],[73,18],[70,21],[66,25],[57,26],[56,24],[59,22],[52,16],[44,12],[43,16],[39,22],[35,28],[34,31],[35,36],[30,36],[27,37],[26,40],[23,38],[23,36],[20,40],[19,42],[13,45],[12,44],[16,40],[16,38],[12,38],[15,41],[10,44],[7,43],[3,43],[-1,37],[-6,36]],
+    [[-5,50],[1,51],[2,53],[-1,55],[-2,58],[-5,59],[-6,56],[-4,54],[-5,52]],
+    [[-10,52],[-6,52],[-6,55],[-8,55],[-10,54]],
+    [[-17,21],[-13,28],[-10,30],[-6,36],[10,37],[11,33],[20,31],[32,31],[34,28],[39,22],[43,12],[51,12],[48,5],[40,-3],[40,-15],[35,-24],[32,-29],[27,-34],[20,-35],[18,-32],[12,-18],[12,-5],[9,4],[5,6],[-4,5],[-8,4],[-13,8],[-17,14]],
+    [[44,-25],[47,-25],[50,-15],[49,-12],[44,-17]],
+    [[130,31],[132,34],[135,34],[140,35],[141,38],[142,42],[145,44],[141,45],[140,41],[139,38],[136,36],[132,35]],
+    [[114,-22],[114,-34],[118,-35],[124,-33],[131,-31],[138,-35],[140,-38],[147,-39],[150,-37],[153,-31],[153,-25],[146,-19],[142,-11],[136,-12],[136,-15],[130,-12],[125,-14],[122,-18]],
+    [[172,-34],[178,-38],[175,-41],[171,-46],[167,-46],[172,-41]],
+    [[95,5],[105,-6],[106,-3],[100,0]],
+    [[109,2],[117,7],[119,1],[116,-4],[110,-3]],
+    [[131,-1],[141,-3],[150,-10],[141,-9],[137,-5]]
+  ],
+  landPaths() {
+    return this.LAND.map(poly => "M" + poly.map(([lon, lat]) => this.project(lat, lon).map(n => n.toFixed(1)).join(" ")).join("L") + "Z")
+      .map(d => `<path class="land" d="${d}"/>`).join("");
+  },
+  grid() {
+    let g = "";
+    for (let lon = -150; lon <= 180; lon += 30) { const [x] = this.project(0, lon); g += `<path class="gridline" d="M${x} 0V${this.H}"/>`; }
+    for (let lat = -40; lat <= 80; lat += 20) { const [, y] = this.project(lat, 0); g += `<path class="gridline" d="M0 ${y}H${this.W}"/>`; }
+    return g;
+  },
+  /* Mapa decorativo (tela inicial) */
+  decorative() {
+    return `<svg viewBox="0 0 ${this.W} ${this.H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">${this.grid()}${this.landPaths()}</svg>`;
+  }
+};
+</script>
+<script>
+"use strict";
+/* =====================================================================
+   UTILITÁRIOS
+   ===================================================================== */
+const $ = (sel, root = document) => root.querySelector(sel);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const hashStr = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+const lineCounters = {};
+/* Escolhe falas em rodízio para evitar repetições seguidas */
+function lulaLine(ctx) {
+  const pool = LULA_LINES[ctx] || LULA_LINES.idle;
+  lineCounters[ctx] = ((lineCounters[ctx] ?? Math.floor(Math.random() * pool.length)) + 1) % pool.length;
+  return pool[lineCounters[ctx]];
+}
+
+/* =====================================================================
+   SALVAMENTO (localStorage com tratamento de erros)
+   ===================================================================== */
+const Store = {
+  KEY: "flavitcho_save_v1",
+  available: false,
+  init() {
+    try { localStorage.setItem("__flv_test", "1"); localStorage.removeItem("__flv_test"); this.available = true; }
+    catch (e) { this.available = false; }
+  },
+  save(state) {
+    if (!this.available || !state) return false;
+    try { localStorage.setItem(this.KEY, JSON.stringify(state)); return true; }
+    catch (e) { this.available = false; UI.toast("Não foi possível salvar o progresso. O jogo continua nesta sessão.", "bad"); return false; }
+  },
+  load() {
+    if (!this.available) return null;
+    try {
+      const raw = localStorage.getItem(this.KEY);
+      if (!raw) return null;
+      const s = JSON.parse(raw);
+      return Store.validate(s) ? s : null;
+    } catch (e) { return null; }
+  },
+  /* Garante que o estado salvo é coerente antes de restaurá-lo */
+  validate(s) {
+    return s && s.version === 1 && CITIES[s.city] && typeof s.hoursUsed === "number" && Array.isArray(s.visited) &&
+      s.clues && typeof s.clues === "object" && Array.isArray(s.clueOrder) && s.docs && s.investigated &&
+      s.witnessesUnlocked && s.asked && s.warrant && Array.isArray(s.log) &&
+      s.clueOrder.every(id => CLUES[id]) && Object.keys(s.docs).every(id => DOCUMENTS[id]);
+  },
+  clear() { if (!this.available) return; try { localStorage.removeItem(this.KEY); } catch (e) { /* ignora */ } }
+};
+
+/* =====================================================================
+   ESTADO DA PARTIDA (fonte única de verdade)
+   ===================================================================== */
+let state = null;
+
+function freshState() {
+  return {
+    version: 1, caseId: CASE.id, status: "active",
+    city: CASE.startCity, hoursUsed: 0,
+    visited: [CASE.startCity], travelHistory: [],
+    clues: {}, clueOrder: [],
+    investigated: {}, witnessesUnlocked: {}, interrogated: {}, asked: {},
+    docs: {}, identifiedSuspect: null, idAttempts: [], dbConsults: 0,
+    warrant: { issued: false }, captureAttempts: 0, warnedLowTime: false,
+    log: [], result: null
+  };
+}
+
+/* ---------- Tempo ---------- */
+const Clock = {
+  left: () => Math.max(0, CASE.totalHours - state.hoursUsed),
+  abs: h => CASE.startHour + h,
+  day: h => Math.floor(Clock.abs(h) / 24) + 1,
+  hourOfDay: h => Clock.abs(h) % 24,
+  label: h => `Dia ${Clock.day(h)} · ${String(Clock.hourOfDay(h)).padStart(2, "0")}:00`,
+  date(h) {
+    const [y, m, d] = CASE.baseDate;
+    const dt = new Date(y, m, d + Clock.day(h) - 1);
+    return `${String(dt.getDate()).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(2, "0")}/${dt.getFullYear()}`;
+  },
+  dur(h) { const d = Math.floor(h / 24), r = h % 24; return d ? `${d}d ${r}h` : `${r}h`; }
+};
+
+/* ---------- Diário ---------- */
+const Journal = {
+  add(type, text, city = state.city) {
+    state.log.push({ type, text, city, hour: state.hoursUsed });
+  }
+};
+
+/* =====================================================================
+   SISTEMA DE VIAGENS
+   ===================================================================== */
+const Travel = {
+  /* Distância pela fórmula de haversine (km) */
+  distanceKm(a, b) {
+    const A = CITIES[a], B = CITIES[b], R = 6371, rad = Math.PI / 180;
+    const dLat = (B.lat - A.lat) * rad, dLon = (B.lon - A.lon) * rad;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(A.lat * rad) * Math.cos(B.lat * rad) * Math.sin(dLon / 2) ** 2;
+    return Math.round(2 * R * Math.asin(Math.sqrt(h)));
+  },
+  /* Horas: 6h fixas (aeroporto, deslocamentos) + voo a ~700 km/h */
+  hours(a, b) { return Math.round(6 + this.distanceKm(a, b) / 700); },
+  minFromCurrent() {
+    return Math.min(...Object.keys(CITIES).filter(c => c !== state.city).map(c => this.hours(state.city, c)));
+  }
+};
+
+/* =====================================================================
+   CONSULTAS DERIVADAS DO ESTADO
+   ===================================================================== */
+const Q = {
+  clueFound: id => !!state.clues[id],
+  foundClues: () => state.clueOrder.map(id => ({ id, ...CLUES[id], ...state.clues[id] })),
+  confirmedCount: () => state.clueOrder.filter(id => state.clues[id].status === "confirmada").length,
+  newCount: () => state.clueOrder.filter(id => state.clues[id].status === "nova").length,
+  reportedTraits() {
+    const set = new Set();
+    state.clueOrder.forEach(id => (CLUES[id].traits || []).forEach(t => set.add(t)));
+    return [...set];
+  },
+  descriptionCount: () => state.clueOrder.filter(id => CLUES[id].type === "fisica").length,
+  hasLink: () => state.clueOrder.some(id => CLUES[id].link),
+  financialExamined: () => Object.keys(state.docs).filter(id => DOCUMENTS[id].financial && state.docs[id].examined).length,
+  docsExamined: () => Object.values(state.docs).filter(d => d.examined).length,
+  witnessesInterrogated: () => Object.keys(state.interrogated).length,
+  suspectsMatching(traits) { return SUSPECTS.filter(s => traits.every(t => s.traits.includes(t))); },
+  cityWitnesses: city => Object.entries(WITNESSES).filter(([, w]) => w.city === city).map(([id, w]) => ({ id, ...w })),
+  /* Cidades sugeridas por pistas CONFIRMADAS (o jogador precisa cruzar evidências) */
+  suggestedCities() {
+    const s = new Set();
+    state.clueOrder.forEach(id => { if (state.clues[id].status === "confirmada" && CLUES[id].pointsTo) s.add(CLUES[id].pointsTo); });
+    return s;
+  },
+  hideoutKnown: () => !!state.clues[CASE.hideoutClue],
+  /* Presença comprovada: cidade da trilha visitada com pista relevante encontrada lá */
+  presenceConfirmed: city => CASE.trail.includes(city) && state.visited.includes(city) &&
+    state.clueOrder.some(id => CLUES[id].city === city && !CLUES[id].inconclusive),
+  pendingHere() {
+    const left = Clock.left(), C = CITIES[state.city];
+    const loc = C.locations.some(l => !state.investigated[state.city + ":" + l.id] && CASE.costs.investigate <= left);
+    const wit = Object.keys(state.witnessesUnlocked).some(w => WITNESSES[w].city === state.city && !state.interrogated[w] && CASE.costs.interrogate <= left);
+    const doc = Object.keys(state.docs).some(d => !state.docs[d].examined && CASE.costs.examine <= left);
+    return loc || wit || doc;
+  },
+  progress() {
+    if (state.status === "won") return 100;
+    const trailHits = CASE.trail.filter(c => state.clueOrder.some(id => CLUES[id].city === c && !CLUES[id].inconclusive)).length;
+    let p = trailHits / CASE.trail.length * 40;
+    p += Math.min(Q.financialExamined(), 6) / 6 * 15;
+    if (state.identifiedSuspect === CASE.culprit) p += 15;
+    if (state.warrant.issued) p += 15;
+    if (Q.hideoutKnown()) p += 10;
+    return Math.round(Math.min(p, 95));
+  }
+};
+
+/* =====================================================================
+   REGRAS DO JOGO
+   ===================================================================== */
+const Game = {
+  spend(h) { state.hoursUsed = Math.min(CASE.totalHours, state.hoursUsed + h); },
+
+  /* ---------- Início / restauração ---------- */
+  startCase() {
+    state = freshState();
+    Journal.add("início", `Caso ${CASE.id} aberto: Flavitcho Silva fugiu do país. Última localização conhecida: Nova York.`);
+    Game.findDocument("doc_memo", true);
+    Store.save(state);
+    UI.lula(lulaLine("start"), "normal");
+  },
+  restoreCase() {
+    const s = Store.load();
+    if (!s) return false;
+    state = s;
+    UI.lula(state.status === "active" ? "De volta ao trabalho, parceiro! " + lulaLine("idle") : "", "normal");
+    return true;
+  },
+
+  /* ---------- Descobertas ---------- */
+  discoverClue(id, source) {
+    if (state.clues[id]) return false;
+    const c = CLUES[id];
+    state.clues[id] = { status: c.inconclusive ? "inconclusiva" : "nova", foundAt: state.hoursUsed, source };
+    state.clueOrder.push(id);
+    Journal.add(c.final ? "alerta" : "pista", (c.final ? "ESCONDERIJO LOCALIZADO — " : "Pista: ") + c.title, c.city);
+    return true;
+  },
+  findDocument(id, silent) {
+    if (state.docs[id]) return false;
+    state.docs[id] = { foundAt: state.hoursUsed, examined: false };
+    if (!silent) Journal.add("documento", "Documento encontrado: " + DOCUMENTS[id].title);
+    return true;
+  },
+  unlockWitness(id) {
+    if (state.witnessesUnlocked[id]) return false;
+    state.witnessesUnlocked[id] = true;
+    Journal.add("testemunha", `Nova testemunha: ${WITNESSES[id].name} (${WITNESSES[id].job})`);
+    return true;
+  },
+
+  /* ---------- Investigar um local ---------- */
+  investigateLocation(locId) {
+    const key = state.city + ":" + locId;
+    const loc = CITIES[state.city].locations.find(l => l.id === locId);
+    if (!loc) return null;
+    if (state.investigated[key]) return { already: true, loc };
+    if (Clock.left() < CASE.costs.investigate) return { noTime: true, loc };
+    Game.spend(CASE.costs.investigate);
+    state.investigated[key] = true;
+    const found = [];
+    loc.finds.forEach(f => {
+      if (f.clue && Game.discoverClue(f.clue, loc.name)) found.push({ kind: "clue", id: f.clue });
+      if (f.doc && Game.findDocument(f.doc)) found.push({ kind: "doc", id: f.doc });
+      if (f.witness && Game.unlockWitness(f.witness)) found.push({ kind: "witness", id: f.witness });
+    });
+    Journal.add("investigação", `Local investigado: ${loc.name}` + (found.length ? "" : " — nenhuma informação útil"));
+    return { loc, found };
+  },
+
+  /* ---------- Interrogatórios ---------- */
+  beginInterrogation(wid) {
+    if (!state.witnessesUnlocked[wid] || WITNESSES[wid].city !== state.city) return { error: "Essa testemunha não está disponível aqui." };
+    if (state.interrogated[wid]) return { ok: true };
+    if (Clock.left() < CASE.costs.interrogate) return { error: "Não há tempo suficiente para um interrogatório." };
+    Game.spend(CASE.costs.interrogate);
+    state.interrogated[wid] = true;
+    state.asked[wid] = state.asked[wid] || [];
+    Journal.add("interrogatório", `Interrogatório iniciado com ${WITNESSES[wid].name}`);
+    return { ok: true, first: true };
+  },
+  answerFor(wid, topic) {
+    const a = WITNESSES[wid].answers[topic];
+    if (a) return a;
+    const keys = Object.keys(QUESTIONS);
+    return { t: FALLBACK_ANSWERS[(hashStr(wid) + keys.indexOf(topic)) % FALLBACK_ANSWERS.length] };
+  },
+  askQuestion(wid, topic) {
+    if (!state.interrogated[wid]) return null;
+    const asked = state.asked[wid] || (state.asked[wid] = []);
+    const repeat = asked.includes(topic);
+    if (!repeat) asked.push(topic);
+    const a = Game.answerFor(wid, topic);
+    let newClue = false;
+    if (a.clue) newClue = Game.discoverClue(a.clue, WITNESSES[wid].name);
+    return { answer: a, repeat, newClue };
+  },
+
+  /* ---------- Documentos ---------- */
+  examineDocument(id) {
+    const d = state.docs[id];
+    if (!d) return null;
+    if (d.examined) return { already: true };
+    if (Clock.left() < CASE.costs.examine) return { noTime: true };
+    Game.spend(CASE.costs.examine);
+    d.examined = true;
+    Journal.add("documento", "Documento analisado: " + DOCUMENTS[id].title, DOCUMENTS[id].city);
+    const clue = DOCUMENTS[id].clue;
+    const newClue = clue ? Game.discoverClue(clue, DOCUMENTS[id].title) : false;
+    return { newClue, clue };
+  },
+
+  /* ---------- Pistas: análise e confirmação ---------- */
+  analyzeClue(id) {
+    const c = state.clues[id];
+    if (c && c.status === "nova") c.status = "analisada";
+  },
+  /* Uma pista só é confirmada quando outra pista encontrada a corrobora */
+  confirmEvidence(id) {
+    const c = state.clues[id];
+    if (!c) return { ok: false, msg: "Pista desconhecida." };
+    if (c.status === "inconclusiva") return { ok: false, msg: "Pista inconclusiva: não há como verificá-la." };
+    if (c.status === "confirmada") return { ok: true, already: true };
+    const support = (CLUES[id].related || []).filter(r => state.clues[r] && state.clues[r].status !== "inconclusiva");
+    if (!support.length) {
+      c.status = "analisada";
+      return { ok: false, msg: "Ainda não encontramos outra fonte que corrobore esta pista. Continue investigando." };
+    }
+    c.status = "confirmada";
+    Journal.add("evidência", `Evidência confirmada: ${CLUES[id].title} (cruzada com “${CLUES[support[0]].title}”)`, CLUES[id].city);
+    return { ok: true, support };
+  },
+
+  /* ---------- Identificação do suspeito ---------- */
+  identificationGaps() {
+    const gaps = [];
+    const traits = Q.reportedTraits();
+    const matches = Q.suspectsMatching(traits);
+    if (Q.descriptionCount() < CASE.idReq.descriptionClues) gaps.push(`Reunir pelo menos ${CASE.idReq.descriptionClues} descrições físicas de testemunhas (temos ${Q.descriptionCount()}).`);
+    if (matches.length !== 1) gaps.push(`As descrições ainda batem com ${matches.length} suspeitos. Precisamos de traços que diferenciem um só.`);
+    if (!Q.hasLink()) gaps.push("Encontrar um documento ou depoimento que ligue o suspeito às empresas investigadas.");
+    return gaps;
+  },
+  identifySuspect(sid) {
+    const s = SUSPECTS.find(x => x.id === sid);
+    if (!s) return null;
+    if (state.identifiedSuspect === CASE.culprit) return { ok: true, already: true };
+    const traits = Q.reportedTraits();
+    if (sid !== CASE.culprit) {
+      Game.spend(CASE.costs.wrongId);
+      state.idAttempts.push({ sid, ok: false, hour: state.hoursUsed });
+      const mismatch = traits.filter(t => !s.traits.includes(t)).map(t => TRAITS[t]);
+      Journal.add("identificação", `Identificação recusada: ${s.name}`);
+      return { ok: false, suspect: s, mismatch };
+    }
+    const gaps = Game.identificationGaps();
+    if (gaps.length) {
+      Game.spend(CASE.costs.idCheck);
+      state.idAttempts.push({ sid, ok: false, hour: state.hoursUsed });
+      Journal.add("identificação", `Identificação de ${s.name} ainda sem provas suficientes`);
+      return { ok: false, suspect: s, gaps };
+    }
+    state.identifiedSuspect = sid;
+    state.idAttempts.push({ sid, ok: true, hour: state.hoursUsed });
+    Journal.add("identificação", `Suspeito identificado formalmente: ${s.name}`);
+    return { ok: true, suspect: s };
+  },
+
+  /* ---------- Mandado ---------- */
+  warrantRequirements() {
+    return [
+      { ok: state.identifiedSuspect === CASE.culprit, label: "Identificação formal do suspeito no banco de dados",
+        hint: "Compare as descrições das testemunhas com as fichas e identifique o responsável." },
+      { ok: Q.financialExamined() >= CASE.warrantReq.financialDocs, label: `Documentos financeiros analisados: ${Q.financialExamined()}/${CASE.warrantReq.financialDocs}`,
+        hint: "Encontre e examine extratos, auditorias e notas fiscais." },
+      { ok: Q.confirmedCount() >= CASE.warrantReq.confirmedClues, label: `Evidências confirmadas: ${Q.confirmedCount()}/${CASE.warrantReq.confirmedClues}`,
+        hint: "No painel de pistas, use “Cruzar evidências” para confirmar pistas que se corroboram." }
+    ];
+  },
+  issueWarrant(form) {
+    if (state.warrant.issued) return { ok: true, already: true };
+    const reqs = Game.warrantRequirements();
+    if (reqs.some(r => !r.ok)) return { ok: false, errors: reqs.filter(r => !r.ok).map(r => r.hint) };
+    const errors = [];
+    if (form.crime !== CASE.correctCrime) errors.push("O crime indicado não corresponde às evidências reunidas (contratos fictícios e dinheiro escondido no exterior).");
+    if (!Q.presenceConfirmed(form.location)) errors.push("A localização informada não tem presença do suspeito comprovada por pistas encontradas pela equipe.");
+    const valid = (form.evidence || []).filter(id => state.clues[id] && state.clues[id].status === "confirmada");
+    if (valid.length < CASE.warrantReq.selectedEvidence) errors.push(`Selecione ao menos ${CASE.warrantReq.selectedEvidence} evidências confirmadas para fundamentar o pedido.`);
+    if (errors.length) {
+      Game.spend(CASE.costs.warrantFail);
+      Journal.add("mandado", "Pedido de mandado devolvido pelo juiz por falta de fundamentação");
+      return { ok: false, errors, penalized: true };
+    }
+    state.warrant = { issued: true, hour: state.hoursUsed, number: `MP-${CASE.id}-${String(state.hoursUsed).padStart(3, "0")}`,
+      crime: form.crime, location: form.location, evidence: valid };
+    Journal.add("mandado", `Mandado de prisão nº ${state.warrant.number} emitido contra Flavitcho Silva`);
+    return { ok: true };
+  },
+
+  /* ---------- Captura ---------- */
+  attemptCapture() {
+    state.captureAttempts++;
+    const missing = [];
+    if (state.identifiedSuspect !== CASE.culprit) missing.push("Flavitcho ainda não foi identificado formalmente.");
+    if (!state.warrant.issued) missing.push("Não há mandado de prisão emitido.");
+    const hereOk = state.city === CASE.finalCity && Q.hideoutKnown();
+    if (!hereOk) missing.push(`Não temos confirmação do esconderijo de Flavitcho em ${CITIES[state.city].name}.`);
+    if (missing.length) {
+      if (!hereOk) Game.spend(CASE.costs.captureFail);
+      Journal.add("captura", `Tentativa de captura em ${CITIES[state.city].name} abortada: ` + missing.join(" "));
+      return { ok: false, missing, cost: hereOk ? 0 : CASE.costs.captureFail };
+    }
+    Journal.add("captura", `Flavitcho Silva capturado em ${CITIES[state.city].name}!`);
+    return { ok: true };
+  },
+
+  /* ---------- Viagem ---------- */
+  travelTo(cid) {
+    if (!CITIES[cid] || cid === state.city) return { error: "Você já está nesta cidade." };
+    const h = Travel.hours(state.city, cid);
+    if (h > Clock.left()) return { error: `Não há tempo suficiente: a viagem leva ${h}h e restam apenas ${Clock.left()}h.` };
+    const from = state.city;
+    Game.spend(h);
+    state.city = cid;
+    if (!state.visited.includes(cid)) state.visited.push(cid);
+    state.travelHistory.push({ from, to: cid, hours: h, at: state.hoursUsed });
+    Journal.add("viagem", `Viagem de ${CITIES[from].name} para ${CITIES[cid].name} (${Travel.distanceKm(from, cid).toLocaleString("pt-BR")} km, ${h}h)`, cid);
+    return { ok: true, from, hours: h };
+  },
+
+  /* ---------- Fim de jogo ---------- */
+  checkTimeout() {
+    if (!state || state.status !== "active") return false;
+    const left = Clock.left();
+    if (left <= 0) { Game.endCase(false, "O prazo de 10 dias acabou."); return true; }
+    // Sem tempo para viajar, nada a fazer aqui e fora do esconderijo: partida encerrada
+    if (state.city !== CASE.finalCity && left < Travel.minFromCurrent() && !Q.pendingHere()) {
+      Game.endCase(false, "Não há mais tempo para nenhuma diligência ou viagem.");
+      return true;
+    }
+    if (left <= 24 && !state.warnedLowTime) {
+      state.warnedLowTime = true;
+      Journal.add("alerta", "Menos de 24 horas para o fim do prazo!");
+      UI.lula(lulaLine("timeLow"), "think");
+    }
+    return false;
+  },
+  endCase(win, reason) {
+    state.status = win ? "won" : "lost";
+    state.result = { win, reason, hour: state.hoursUsed, city: state.city };
+    Journal.add("resultado", win ? `Caso encerrado com sucesso em ${CITIES[state.city].name}.` : `Flavitcho escapou. ${reason}`);
+    Store.save(state);
+    UI.renderEnd();
+  },
+  rank() {
+    const left = Clock.left(), extra = Math.max(0, state.visited.length - CASE.trail.length);
+    const score = left + state.clueOrder.length * 3 + Q.witnessesInterrogated() * 2 + Q.docsExamined() * 3 - extra * 10;
+    let title = "Agente de Sorte Grande";
+    if (left >= 60 && extra <= 1) title = "Agente Lendário";
+    else if (left >= 36) title = "Detetive Internacional";
+    else if (left >= 12) title = "Investigador Persistente";
+    return { title, score: Math.max(0, score) };
+  }
+};
+
+/* =====================================================================
+   INTERFACE
+   ===================================================================== */
+const UI = {
+  modal: null,          // { render, lastFocus }
+  mapSel: null,         // cidade selecionada no mapa
+  clueFilter: "todas",
+  dbTraits: null,       // filtros marcados no banco de dados
+  lulaState: { text: "", mood: "normal" },
+  lastInvestigation: null,
+
+  show(id) {
+    const changed = $("#" + id).classList.contains("hidden");
+    ["screen-title", "screen-briefing", "screen-hub", "screen-end"].forEach(s => $("#" + s).classList.toggle("hidden", s !== id));
+    if (changed) window.scrollTo(0, 0);
+  },
+  toast(msg, kind = "") {
+    const t = document.createElement("div");
+    t.className = "toast " + kind;
+    t.textContent = msg;
+    $("#toasts").appendChild(t);
+    setTimeout(() => t.remove(), 4200);
+  },
+  lula(text, mood = "normal") {
+    if (text) UI.lulaState = { text, mood };
+  },
+  lulaBox(text, mood, small) {
+    return `<div class="dialog"><div class="avatar" style="${small ? "width:64px" : ""}">${Art.lula(mood)}</div>
+      <div class="bubble anim"><span class="speaker">Agente Lula</span>${esc(text)}</div></div>`;
+  },
+
+  /* ---------- Tela inicial ---------- */
+  renderTitle() {
+    $("#title-lula").innerHTML = `<div class="globe">${globeSVG()}</div>` + Art.lula("happy");
+    $("#title-bg").innerHTML = WorldMap.decorative();
+    const saved = Store.load();
+    $("#btn-continue").classList.toggle("hidden", !(saved && saved.status === "active"));
+    $("#storage-warning").classList.toggle("hidden", Store.available);
+    UI.show("screen-title");
+  },
+
+  /* ---------- Briefing ---------- */
+  renderBriefing() {
+    $("#briefing-lula").innerHTML = UI.lulaBox("Bom dia, parceiro! Sou o agente Lula. Temos um caso daqueles: Flavitcho Silva sumiu com R$ 87 milhões de uma ponte que nunca existiu. " +
+      "Vamos por partes: primeiro descobrir para onde foi o dinheiro, depois quem estava com ele e, por fim, onde ele está escondido. Temos 10 dias.", "normal") +
+      `<ol style="color:var(--gray);font-size:.92rem;margin-top:1em">
+        <li>Investigue locais e interrogue testemunhas em cada cidade.</li>
+        <li>Examine documentos financeiros e cruze as evidências.</li>
+        <li>Decifre as pistas para descobrir o próximo destino.</li>
+        <li>Identifique o suspeito, peça o mandado e capture-o no esconderijo.</li></ol>`;
+    const f = SUSPECTS[0];
+    $("#briefing-dossier").innerHTML = `<span class="stamp">FORAGIDO</span>
+      <h3>Ficha do suspeito</h3>
+      <div class="dossier-portrait">${Art.flavitcho("normal")}</div>
+      <dl><dt>Nome:</dt><dd>${esc(f.name)}</dd><dt>Codinome:</dt><dd>${esc(f.alias)}</dd>
+      <dt>Ocupação:</dt><dd>${esc(f.job)}</dd><dt>Status:</dt><dd>Foragido</dd>
+      <dt>Acusação:</dt><dd>Participação em esquema de corrupção e desvio de milhões em recursos públicos (fictício).</dd>
+      <dt>Aparência:</dt><dd>Terno escuro, óculos escuros, pasta executiva. Expressão desconfiada.</dd>
+      <dt>Última localização conhecida:</dt><dd>Nova York, Estados Unidos</dd></dl>
+      <p style="clear:both;font-size:.75rem;margin:12px 0 0">Personagem fictício. Caso fictício.</p>`;
+    UI.show("screen-briefing");
+  },
+
+  /* ---------- Central de investigação ---------- */
+  renderHub() {
+    if (!state) return;
+    const C = CITIES[state.city], left = Clock.left();
+    $("#topbar").innerHTML = `
+      <div class="brand">Onde no mundo está<br><b>Flavitcho?</b></div>
+      <div class="stat"><span>Missão</span><strong>${esc(CASE.title)}</strong></div>
+      <div class="stat"><span>Local</span><strong>${esc(C.name)}</strong></div>
+      <div class="stat"><span>Data</span><strong>${Clock.label(state.hoursUsed)}</strong></div>
+      <div class="stat time ${left <= 24 ? "low" : ""}"><span>Tempo restante</span><strong>${Clock.dur(left)}</strong></div>
+      <div class="stat"><span>Pistas</span><strong>${state.clueOrder.length}</strong></div>
+      <div class="stat progress"><span>Progresso da investigação · ${Q.progress()}%</span>
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Q.progress()}"><span style="width:${Q.progress()}%"></span></div></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-sm" data-action="help" title="Como jogar">? Ajuda</button>
+        <button class="btn btn-sm" data-action="save">💾 Salvar</button>
+        <button class="btn btn-sm btn-danger" data-action="restart">↺ Reiniciar</button>
+        <button class="btn btn-sm btn-ghost" data-action="to-title">⌂ Início</button>
+      </div>`;
+
+    $("#city-title").innerHTML = `📍 Localização atual — ${esc(C.name)}`;
+    $("#city-panel").innerHTML = `
+      ${UI.cityPhoto(state.city)}
+      <div class="city-head"><span class="flag">${Art.flag(C.flag)}</span><div><h2>${esc(C.name)}</h2><span class="country">${esc(C.country)} · ${esc(C.region)}</span></div></div>
+      <div class="facts">
+        <div><span>Idioma</span>${esc(C.languages)}</div><div><span>Moeda</span>${esc(C.currency)}</div>
+        <div><span>População</span>${esc(C.population)}</div><div><span>Aeroporto</span>${esc(C.airport)}</div>
+      </div>
+      <p class="city-desc">${esc(C.desc)}</p>
+      <div class="landmarks">${C.landmarks.map(l => `<span class="chip">🏛 ${esc(l)}</span>`).join("")}</div>`;
+    UI.bindImages($("#city-panel"));
+
+    $("#lula-dialog").innerHTML = `<div class="avatar">${Art.lula(UI.lulaState.mood)}</div><div class="bubble anim"><span class="speaker">Agente Lula</span>${esc(UI.lulaState.text || lulaLine("idle"))}</div>`;
+
+    const locLeft = C.locations.filter(l => !state.investigated[state.city + ":" + l.id]).length;
+    const witLeft = Object.keys(state.witnessesUnlocked).filter(w => WITNESSES[w].city === state.city && !state.interrogated[w]).length;
+    const docLeft = Object.values(state.docs).filter(d => !d.examined).length;
+    const badge = n => n ? `<span class="badge">${n}</span>` : "";
+    const act = (action, ico, label, sub, extra = "", b = "") =>
+      `<button class="action ${extra}" data-action="${action}"><span class="ico" aria-hidden="true">${ico}</span><span>${label}<small>${sub}</small></span>${b}</button>`;
+    $("#actions").innerHTML =
+      act("open-investigate", "🔍", "Investigar a cidade", `${locLeft} local(is) a vasculhar`, "", badge(locLeft)) +
+      act("open-witnesses", "🗣", "Testemunhas", "Interrogatórios", "", badge(witLeft)) +
+      act("open-docs", "📄", "Documentos", "Examinar papéis", "", badge(docLeft)) +
+      act("open-clues", "🧩", "Pistas", `${state.clueOrder.length} encontradas`, "", badge(Q.newCount())) +
+      act("open-db", "🗄", "Banco de dados", "Fichas de suspeitos") +
+      act("open-map", "🗺", "Mapa e viagens", "Escolher destino") +
+      act("open-warrant", "⚖", "Mandado de prisão", state.warrant.issued ? "Emitido ✔" : "Preparar pedido", "warrant") +
+      act("capture", "🚨", "Operação de captura", "Prender Flavitcho", "capture") +
+      act("open-diary", "📓", "Diário", "Histórico do caso");
+
+    const recent = state.log.filter(e => ["pista", "documento", "testemunha", "evidência", "alerta", "identificação", "mandado"].includes(e.type)).slice(-5).reverse();
+    $("#recent").innerHTML = recent.length
+      ? recent.map(e => `<li>${esc(e.text)}<span class="meta">${Clock.label(e.hour)} · ${esc(CITIES[e.city]?.name || "")}</span></li>`).join("")
+      : `<li>Nenhuma descoberta ainda. Comece investigando a cidade.</li>`;
+    UI.show("screen-hub");
+  },
+
+  cityPhoto(cid) {
+    const C = CITIES[cid], im = C.image;
+    return `<div class="city-photo">
+      <div class="fallback">${Art.skyline()}<strong>${esc(C.name)}</strong><small>${esc(C.landmarks[0])}</small></div>
+      <img src="${esc(im.src)}" alt="${esc(im.alt)}" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+      <span class="credit">Foto: <a href="${esc(im.page)}" target="_blank" rel="noopener">${esc(im.author)}</a> · ${esc(im.license)}</span>
+    </div>`;
+  },
+  /* Se a foto falhar (offline, link quebrado), mantém a ilustração alternativa */
+  bindImages(root) {
+    root.querySelectorAll(".city-photo img").forEach(img => {
+      const fail = () => { img.remove(); };
+      if (img.complete && img.naturalWidth === 0 && img.src) fail();
+      img.addEventListener("error", fail, { once: true });
+    });
+  },
+
+  /* ---------- Modal genérico ---------- */
+  openModal(render, opts = {}) {
+    UI.modal = { render, opts, lastFocus: document.activeElement };
+    UI.refreshModal(true);
+  },
+  refreshModal(first) {
+    if (!UI.modal) return;
+    const { title, body, foot } = UI.modal.render();
+    const root = $("#modal-root");
+    const scroll = !first && root.querySelector(".modal-body") ? root.querySelector(".modal-body").scrollTop : 0;
+    root.innerHTML = `<div class="modal-backdrop" data-backdrop>
+      <div class="modal panel ${UI.modal.opts.narrow ? "narrow" : ""}" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-head"><h2 id="modal-title">${title}</h2><button class="close-x" data-action="close-modal" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">${body}</div>
+        ${foot ? `<div class="modal-foot">${foot}</div>` : ""}
+      </div></div>`;
+    root.querySelector(".modal-body").scrollTop = scroll;
+    UI.bindImages(root);
+    if (first) (root.querySelector(".modal-body button, .modal-body [tabindex], .close-x") || root).focus();
+  },
+  closeModal() {
+    if (!UI.modal) return;
+    const f = UI.modal.lastFocus;
+    UI.modal = null;
+    $("#modal-root").innerHTML = "";
+    if (f && document.contains(f)) f.focus();
+  },
+
+  /* ---------- Investigar ---------- */
+  investigateView() {
+    const C = CITIES[state.city];
+    const cards = C.locations.map(l => {
+      const done = state.investigated[state.city + ":" + l.id];
+      return `<div class="card ${done ? "done" : ""}"><h3><span aria-hidden="true">${l.icon}</span>${esc(l.name)}</h3>
+        <p>${esc(l.kind)}</p>
+        <div class="card-foot">${done ? `<span class="chip green">✔ Investigado</span><button class="btn btn-sm" data-action="investigate" data-id="${l.id}">Revisitar</button>`
+          : `<button class="btn btn-sm btn-primary" data-action="investigate" data-id="${l.id}">Investigar (${CASE.costs.investigate}h)</button>`}</div></div>`;
+    }).join("");
+    let result = "";
+    const r = UI.lastInvestigation;
+    if (r && r.city === state.city) result = `<div class="result-box">${r.html}</div>`;
+    return { title: `🔍 Investigar ${esc(C.name)}`, body: `<p style="color:var(--gray);margin-top:0">Cada local leva ${CASE.costs.investigate} horas para ser vasculhado. Locais já investigados não rendem novas informações.</p>
+      <div class="cards">${cards}</div>${result}` };
+  },
+  describeFinds(found) {
+    return found.map(f => {
+      if (f.kind === "clue") { const c = CLUES[f.id]; return `<div class="card clue-card st-${state.clues[f.id].status}"><h3>🧩 ${esc(c.title)}</h3><p>${esc(c.desc)}</p><span class="chip ${c.inconclusive ? "gray" : "gold"}">${c.inconclusive ? "Inconclusiva" : "Nova pista"} · ${esc(CLUE_TYPES[c.type])}</span></div>`; }
+      if (f.kind === "doc") return `<div class="card"><h3>📄 ${esc(DOCUMENTS[f.id].title)}</h3><p>Documento encontrado. Examine-o no painel de documentos.</p><div class="card-foot"><button class="btn btn-sm btn-gold" data-action="open-doc" data-id="${f.id}">Examinar agora</button></div></div>`;
+      if (f.kind === "witness") return `<div class="card"><h3>🗣 ${esc(WITNESSES[f.id].name)}</h3><p>${esc(WITNESSES[f.id].job)} quer conversar.</p><div class="card-foot"><button class="btn btn-sm" data-action="interrogate" data-id="${f.id}">Interrogar</button></div></div>`;
+      return "";
+    }).join("");
+  },
+
+  /* ---------- Testemunhas ---------- */
+  witnessesView() {
+    const all = Q.cityWitnesses(state.city);
+    const avail = all.filter(w => state.witnessesUnlocked[w.id]);
+    const hidden = all.length - avail.length;
+    const cards = avail.map(w => `<div class="card"><div style="display:flex;gap:10px;align-items:center"><div style="width:64px;flex:none">${Art.person(w.look)}</div>
+      <div><h3>${esc(w.name)}</h3><p>${esc(w.job)}</p></div></div><p>${esc(w.desc)}</p>
+      <div class="card-foot">${state.interrogated[w.id] ? `<span class="chip green">✔ Interrogada(o)</span><button class="btn btn-sm" data-action="interrogate" data-id="${w.id}">Continuar conversa</button>`
+        : `<button class="btn btn-sm btn-primary" data-action="interrogate" data-id="${w.id}">Interrogar (${CASE.costs.interrogate}h)</button>`}</div></div>`).join("");
+    return { title: `🗣 Testemunhas em ${esc(CITIES[state.city].name)}`,
+      body: (cards ? `<div class="cards">${cards}</div>` : `<p>Nenhuma testemunha disponível ainda.</p>`) +
+        (hidden ? `<p style="color:var(--gray)">🔎 Investigue os locais da cidade para encontrar ${hidden === 1 ? "mais uma testemunha" : "mais testemunhas"}.</p>` : "") };
+  },
+  interrogationView(wid) {
+    const w = WITNESSES[wid];
+    const asked = state.asked[wid] || [];
+    const chat = [`<div class="msg a"><span class="who">${esc(w.name)}</span>${esc(w.intro)}</div>`];
+    asked.forEach(topic => {
+      const a = Game.answerFor(wid, topic);
+      chat.push(`<div class="msg q">${esc(QUESTIONS[topic])}</div>`);
+      chat.push(`<div class="msg a ${a.clue ? "clue" : ""}"><span class="who">${esc(w.name)}</span>${esc(a.t)}${a.clue ? `<br><span class="chip green" style="margin-top:6px">🧩 Pista registrada: ${esc(CLUES[a.clue].title)}</span>` : ""}</div>`);
+    });
+    const qs = Object.entries(QUESTIONS).map(([k, q]) => `<button class="btn btn-sm ${asked.includes(k) ? "asked" : ""}" data-action="ask" data-id="${wid}" data-topic="${k}">${asked.includes(k) ? "✔ " : "❓ "}${esc(q)}</button>`).join("");
+    return { title: `🗣 Interrogatório — ${esc(w.name)}`,
+      body: `<div class="interro"><div class="witness-card">${Art.person(w.look)}<h3 style="margin:.4em 0 0">${esc(w.name)}</h3><p style="color:var(--gray);margin:.2em 0">${esc(w.job)}</p>
+        <p style="font-size:.85rem;color:var(--gray)">${esc(w.desc)}</p>${UI.lulaBox(asked.length ? "Boa pergunta. Vamos ver se bate com o resto." : "Pergunte com calma. Cada resposta pode ser uma peça do quebra-cabeça.", "think", true)}</div>
+        <div><div class="chat" id="chat">${chat.join("")}</div><div class="questions">${qs}</div></div></div>`,
+      foot: `<button class="btn" data-action="open-witnesses">← Outras testemunhas</button>` };
+  },
+
+  /* ---------- Documentos ---------- */
+  docsView() {
+    const ids = Object.keys(state.docs);
+    const cards = ids.slice().reverse().map(id => {
+      const D = DOCUMENTS[id], ex = state.docs[id].examined;
+      return `<div class="card"><h3>${D.financial ? "💰" : "📄"} ${esc(D.title)}</h3><p>${esc(D.sub)}</p>
+        <div class="card-foot"><span class="chip ${D.financial ? "gold" : "sky"}">${D.financial ? "Financeiro" : "Documental"}</span>
+        <span class="chip gray">${esc(CITIES[D.city].name)}</span>
+        ${ex ? `<span class="chip green">✔ Analisado</span>` : ""}
+        <button class="btn btn-sm ${ex ? "" : "btn-gold"}" data-action="open-doc" data-id="${id}">${ex ? "Reler" : `Examinar (${CASE.costs.examine}h)`}</button></div></div>`;
+    }).join("");
+    return { title: "📄 Documentos do caso", body: `<p style="color:var(--gray);margin-top:0">Documentos financeiros analisados: <b>${Q.financialExamined()}</b>. Examinar um documento pela primeira vez leva ${CASE.costs.examine}h.</p><div class="cards">${cards || "<p>Nenhum documento.</p>"}</div>` };
+  },
+  docView(id, res) {
+    const D = DOCUMENTS[id];
+    let note = "";
+    if (res && res.newClue) note = UI.lulaBox(lulaLine("doc") + " Registrei a pista: “" + CLUES[res.clue].title + "”.", "happy", true);
+    else if (res && res.noTime) note = UI.lulaBox("Não temos tempo nem para ler isso direito…", "sad", true);
+    return { title: "📄 " + esc(D.title),
+      body: `${note}<div class="doc-paper ${D.style === "ticket" ? "ticket" : D.style === "bank" ? "bank" : ""}" style="margin-top:12px">
+        ${D.stamp ? `<span class="doc-stamp">${esc(D.stamp)}</span>` : ""}<h3>${esc(D.title)}</h3><div class="doc-sub">${esc(D.sub)} · Documento fictício</div>${D.body}</div>`,
+      foot: `<button class="btn" data-action="open-docs">← Todos os documentos</button>` };
+  },
+
+  /* ---------- Pistas ---------- */
+  cluesView() {
+    const f = UI.clueFilter;
+    const statuses = { todas: "Todas", nova: "Novas", analisada: "Analisadas", confirmada: "Confirmadas", inconclusiva: "Inconclusivas" };
+    const types = Object.entries(CLUE_TYPES);
+    let list = Q.foundClues().slice().reverse();
+    if (statuses[f] && f !== "todas") list = list.filter(c => c.status === f);
+    if (CLUE_TYPES[f]) list = list.filter(c => c.type === f);
+    const stLabel = { nova: ["gold", "Nova"], analisada: ["sky", "Analisada"], confirmada: ["green", "Confirmada"], inconclusiva: ["gray", "Inconclusiva"] };
+    const cards = list.map(c => {
+      const rel = (c.related || []).map(r => state.clues[r] ? `<span class="chip ${state.clues[r].status === "confirmada" ? "green" : ""}">${esc(CLUES[r].title)}</span>` : "").join("");
+      const unknown = (c.related || []).filter(r => !state.clues[r]).length;
+      const [cls, lbl] = stLabel[c.status];
+      return `<div class="card clue-card st-${c.status}">
+        <h3>🧩 ${esc(c.title)}</h3>
+        <div class="clue-meta">ID ${esc(c.id.toUpperCase())} · ${esc(CLUE_TYPES[c.type])} · ${esc(CITIES[c.city].name)} · ${Clock.date(c.foundAt)} (${Clock.label(c.foundAt)}) · Fonte: ${esc(c.source || "—")}</div>
+        <p>${c.status === "nova" ? "<i>Pista ainda não analisada.</i>" : esc(c.desc)}</p>
+        ${c.status !== "nova" && (rel || unknown) ? `<div class="clue-meta">Relação com outras pistas: ${rel || ""} ${unknown ? `<span class="chip gray">${unknown} ainda não encontrada(s)</span>` : ""}</div>` : ""}
+        <div class="card-foot"><span class="chip ${cls}">${lbl}</span>
+          ${c.status === "nova" ? `<button class="btn btn-sm btn-gold" data-action="analyze" data-id="${c.id}">Analisar</button>` : ""}
+          ${c.status === "analisada" ? `<button class="btn btn-sm btn-primary" data-action="confirm" data-id="${c.id}">Cruzar evidências</button>` : ""}
+        </div></div>`;
+    }).join("");
+    const fbtn = (k, l) => `<button class="btn btn-sm ${f === k ? "active" : ""}" data-action="clue-filter" data-id="${k}">${l}</button>`;
+    return { title: "🧩 Pistas encontradas",
+      body: `<div class="filters" role="toolbar" aria-label="Filtrar por status">${Object.entries(statuses).map(([k, l]) => fbtn(k, l)).join("")}</div>
+        <div class="filters" role="toolbar" aria-label="Filtrar por tipo">${types.map(([k, l]) => fbtn(k, l)).join("")}</div>
+        <p style="color:var(--gray);margin-top:0;font-size:.88rem">Analise as pistas novas e use <b>Cruzar evidências</b> para confirmá-las quando outra pista as corroborar. Pistas de viagem confirmadas aparecem destacadas no mapa.</p>
+        <div class="cards">${cards || "<p>Nenhuma pista neste filtro.</p>"}</div>` };
+  },
+
+  /* ---------- Banco de dados ---------- */
+  dbView() {
+    const reported = Q.reportedTraits();
+    if (!UI.dbTraits) UI.dbTraits = [];
+    const sel = UI.dbTraits;
+    const traitsHtml = Object.entries(TRAITS).map(([k, l]) => `<label class="trait ${reported.includes(k) ? "reported" : ""}">
+      <input type="checkbox" data-action="toggle-trait" data-id="${k}" ${sel.includes(k) ? "checked" : ""}> ${esc(l)}
+      ${reported.includes(k) ? `<span class="chip green" style="margin-left:auto">relatado</span>` : ""}</label>`).join("");
+    const cards = SUSPECTS.map(s => {
+      const ok = sel.every(t => s.traits.includes(t));
+      const isId = state.identifiedSuspect === s.id;
+      return `<div class="card suspect ${ok ? "" : "dim"}"><div>${Art.person(s.art)}</div><div>
+        <h3>${esc(s.name)} ${isId ? `<span class="chip red">IDENTIFICADO</span>` : ""}</h3>
+        <p class="match" style="color:${ok ? "var(--green)" : "var(--red)"}">${sel.length ? (ok ? "✔ Compatível com os filtros" : "✘ Incompatível com os filtros") : "Sem filtros aplicados"}</p>
+        <dl><dt>Codinome</dt><dd>${esc(s.alias)}</dd><dt>Idade</dt><dd>${s.age} anos</dd><dt>Nacionalidade</dt><dd>${esc(s.nationality)}</dd>
+        <dt>Ocupação</dt><dd>${esc(s.job)}</dd><dt>Aparência</dt><dd>${esc(s.look)}</dd><dt>Vestimentas</dt><dd>${esc(s.clothes)}</dd>
+        <dt>Acessórios</dt><dd>${esc(s.accessories)}</dd><dt>Relação</dt><dd>${esc(s.relation)}</dd><dt>Informações</dt><dd>${esc(s.known)}</dd><dt>Status</dt><dd>${esc(isId ? "Identificado como responsável" : s.status)}</dd></dl>
+        <div class="card-foot" style="margin-top:8px">${state.identifiedSuspect === CASE.culprit ? "" : `<button class="btn btn-sm btn-danger" data-action="identify" data-id="${s.id}">Identificar como responsável</button>`}</div>
+      </div></div>`;
+    }).join("");
+    const gaps = state.identifiedSuspect === CASE.culprit ? [] : Game.identificationGaps();
+    return { title: "🗄 Banco de dados de suspeitos",
+      body: `<div class="db-grid"><div>
+          <h3 style="margin-top:0;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em">Filtrar por características</h3>
+          <div class="trait-list">${traitsHtml}</div>
+          <button class="btn btn-sm" style="margin-top:10px;width:100%" data-action="use-reported">Usar traços relatados pelas testemunhas</button>
+          <div style="margin-top:14px;font-size:.85rem;color:var(--gray)">
+            <b>Descrições físicas reunidas:</b> ${Q.descriptionCount()}<br><b>Vínculo com empresas:</b> ${Q.hasLink() ? "✔ encontrado" : "✘ ainda não"}<br>
+            ${state.identifiedSuspect === CASE.culprit ? `<span class="chip green" style="margin-top:8px">Flavitcho identificado formalmente</span>` :
+              (gaps.length ? `<p>Para uma identificação formal ainda falta:</p><ul>${gaps.map(g => `<li>${esc(g)}</li>`).join("")}</ul>` : `<p style="color:var(--green)">As evidências já permitem uma identificação formal.</p>`)}
+          </div>
+          <p style="font-size:.78rem;color:var(--gray-dim)">Identificar a pessoa errada custa ${CASE.costs.wrongId}h. A consulta e os filtros são gratuitos.</p>
+        </div><div class="cards" style="grid-template-columns:1fr">${cards}</div></div>` };
+  },
+
+  /* ---------- Mapa ---------- */
+  mapView() {
+    const sel = UI.mapSel || state.city;
+    const suggested = Q.suggestedCities();
+    const P = (c) => WorldMap.project(CITIES[c].lat, CITIES[c].lon);
+    // Rota já percorrida
+    let route = "";
+    if (state.travelHistory.length) {
+      const pts = [state.travelHistory[0].from, ...state.travelHistory.map(t => t.to)].map(P);
+      route = `<path class="route" d="M${pts.map(p => p.map(n => n.toFixed(1)).join(" ")).join("L")}"/>`;
+    }
+    const markers = Object.entries(CITIES).map(([id, C]) => {
+      const [x, y] = P(id);
+      const cls = id === state.city ? "current" : state.visited.includes(id) ? "visited" : "unvisited";
+      const rings = (id === state.city ? `<circle class="ring-current" cx="${x}" cy="${y}" r="7"/>` : "") +
+        (suggested.has(id) ? `<circle class="ring-clue" cx="${x}" cy="${y}" r="11"/>` : "") +
+        (id === CASE.finalCity && Q.hideoutKnown() ? `<circle class="ring-final" cx="${x}" cy="${y}" r="15"/>` : "");
+      return `<g class="marker ${cls} ${id === sel ? "selected" : ""}" tabindex="0" role="button" data-action="map-select" data-id="${id}" aria-label="${esc(C.name)}, ${esc(C.country)}">
+        ${rings}<circle class="dot" cx="${x}" cy="${y}" r="6"/><text x="${x + C.label[0]}" y="${y + C.label[1]}">${esc(C.name)}</text></g>`;
+    }).join("");
+    const list = Object.entries(CITIES).map(([id, C]) => {
+      const tag = id === state.city ? "você está aqui" : state.visited.includes(id) ? "visitada" : "";
+      return `<li><button class="${id === sel ? "selected" : ""}" data-action="map-select" data-id="${id}"><span class="flag">${Art.flag(C.flag)}</span>${esc(C.name)}${suggested.has(id) ? " 🧩" : ""}<span class="tag">${tag}</span></button></li>`;
+    }).join("");
+    const D = CITIES[sel];
+    let dest;
+    if (sel === state.city) {
+      dest = `<p>Você está em <b>${esc(D.name)}</b>. Selecione outra cidade para ver o tempo de viagem.</p>`;
+    } else {
+      const h = Travel.hours(state.city, sel), km = Travel.distanceKm(state.city, sel), can = h <= Clock.left();
+      dest = `<div style="display:flex;gap:8px;align-items:center"><span class="flag">${Art.flag(D.flag)}</span><b>${esc(D.name)}</b> — ${esc(D.country)}</div>
+        <p style="font-size:.85rem;color:var(--gray);margin:.5em 0">${esc(D.region)} · Moeda: ${esc(D.currency)} · Idioma: ${esc(D.languages)} · Aeroporto: ${esc(D.airport)}</p>
+        <p style="font-size:.85rem;color:var(--gray);margin:.5em 0">Pontos turísticos: ${esc(D.landmarks.join(", "))}</p>
+        <p>✈ Distância: <b>${km.toLocaleString("pt-BR")} km</b> · Duração: <b>${h}h</b></p>
+        ${suggested.has(sel) ? `<p class="chip sky">🧩 Destino sugerido por pistas confirmadas</p>` : ""}
+        ${can ? `<button class="btn btn-primary" style="width:100%" data-action="travel" data-id="${sel}">Viajar para ${esc(D.name)} (${h}h)</button>`
+              : `<p class="chip red">Tempo insuficiente: restam ${Clock.left()}h</p>`}`;
+    }
+    return { title: "🗺 Mapa-múndi e viagens",
+      body: `<div class="map-wrap"><div>
+          <div class="map-box"><svg viewBox="0 0 ${WorldMap.W} ${WorldMap.H.toFixed(0)}" role="group" aria-label="Mapa-múndi com as cidades do jogo">${WorldMap.grid()}${WorldMap.landPaths()}${route}${markers}</svg></div>
+          <div class="legend"><span><i style="background:var(--gold)"></i>Cidade atual</span><span><i style="background:var(--green)"></i>Visitada</span>
+            <span><i style="background:#7d89a3"></i>Não visitada</span><span><i style="border:2px dashed var(--sky)"></i>Sugerida por pista confirmada</span>
+            <span><i style="border:2px solid var(--red)"></i>Esconderijo descoberto</span></div>
+        </div><div><ul class="city-list" aria-label="Lista de cidades">${list}</ul><div class="card dest-card">${dest}</div></div></div>` };
+  },
+
+  /* ---------- Mandado ---------- */
+  warrantView(feedback) {
+    if (state.warrant.issued) return { title: "⚖ Mandado de prisão", body: UI.warrantDoc() };
+    const reqs = Game.warrantRequirements();
+    const confirmed = Q.foundClues().filter(c => c.status === "confirmada");
+    const visitedTrail = state.visited;
+    const fb = feedback ? `<div class="card" style="border-color:${feedback.ok ? "var(--green)" : "var(--red)"}">${feedback.html}</div>` : "";
+    return { title: "⚖ Pedido de mandado de prisão (fictício)",
+      body: `${fb}<div class="warrant-grid"><div>
+          <h3 style="margin-top:0;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em">Requisitos</h3>
+          <ul class="req">${reqs.map(r => `<li><span class="${r.ok ? "ok" : "no"}">${r.ok ? "✔" : "✘"}</span><span>${esc(r.label)}${r.ok ? "" : `<br><small style="color:var(--gray)">${esc(r.hint)}</small>`}</span></li>`).join("")}
+            <li><span class="no">•</span><span>Registrar no formulário o crime, a última localização comprovada e as evidências que fundamentam o pedido.</span></li></ul>
+          ${UI.lulaBox(reqs.every(r => r.ok) ? "Parece que temos o suficiente. Preencha com cuidado: juiz não gosta de papel mal feito." : lulaLine("warrantFail"), reqs.every(r => r.ok) ? "normal" : "think", true)}
+        </div>
+        <form id="warrant-form" class="doc-paper" style="max-width:none" onsubmit="return false">
+          <h3>Pedido de mandado</h3><div class="doc-sub">Caso nº ${esc(CASE.id)} · Documento fictício</div>
+          <div class="form-row"><label>Suspeito</label><input type="text" readonly value="${state.identifiedSuspect ? esc(SUSPECTS.find(s => s.id === state.identifiedSuspect).name) : "— identifique o suspeito no banco de dados —"}"></div>
+          <div class="form-row"><label for="w-crime">Crime investigado</label><select id="w-crime">
+            <option value="">Selecione…</option><option value="contrabando">Contrabando de artefatos históricos</option>
+            <option value="desvio">Desvio de recursos públicos e lavagem de dinheiro</option><option value="sonegacao">Sonegação de impostos de pequeno comércio</option></select></div>
+          <div class="form-row"><label for="w-loc">Última localização com presença comprovada</label><select id="w-loc">
+            <option value="">Selecione…</option>${visitedTrail.map(c => `<option value="${c}">${esc(CITIES[c].name)}</option>`).join("")}</select></div>
+          <fieldset><legend>Evidências que fundamentam o pedido (mín. ${CASE.warrantReq.selectedEvidence})</legend>
+            ${confirmed.length ? confirmed.map(c => `<label class="check"><input type="checkbox" name="w-ev" value="${c.id}"> ${esc(c.title)}</label>`).join("") : "<p style='font-size:.85rem'>Nenhuma evidência confirmada ainda.</p>"}</fieldset>
+          <button type="button" class="btn btn-gold" data-action="issue-warrant">✍ Assinar e solicitar emissão</button>
+        </form></div>` };
+  },
+  warrantDoc() {
+    const w = state.warrant, f = SUSPECTS.find(s => s.id === CASE.culprit);
+    return `<div class="doc-paper warrant-doc"><span class="doc-stamp" style="color:var(--green);border-color:var(--green)">EMITIDO</span>
+      <div class="doc-sub">Agência Internacional de Rastreamento de Ativos (fictícia)</div>
+      <div class="big">MANDADO DE PRISÃO</div>
+      <table><tr><th>Nº do mandado</th><td>${esc(w.number)}</td></tr><tr><th>Caso</th><td>${esc(CASE.id)} — ${esc(CASE.title)}</td></tr>
+      <tr><th>Suspeito</th><td>${esc(f.name)} (“${esc(f.alias)}”)</td></tr>
+      <tr><th>Crime investigado</th><td>Desvio de recursos públicos e lavagem de dinheiro</td></tr>
+      <tr><th>Última localização confirmada</th><td>${esc(CITIES[w.location].name)}, ${esc(CITIES[w.location].country)}</td></tr>
+      <tr><th>Descrição física</th><td>Terno escuro, óculos escuros, pasta executiva com iniciais “F.S.”, relógio dourado, barba feita, sem bigode.</td></tr>
+      <tr><th>Data de emissão</th><td>${Clock.date(w.hour)} (${Clock.label(w.hour)})</td></tr>
+      <tr><th>Status</th><td><b>ATIVO — cumprir onde o suspeito for localizado</b></td></tr></table>
+      <p><b>Resumo das evidências:</b></p><ul>${w.evidence.map(id => `<li>${esc(CLUES[id].title)}</li>`).join("")}</ul>
+      <p class="note">Documento fictício, criado para um jogo. Não reproduz nenhum documento oficial real.</p></div>`;
+  },
+
+  /* ---------- Diário ---------- */
+  diaryView() {
+    const items = state.log.slice().reverse().map(e => `<li class="t-${esc(e.type.normalize("NFD").replace(/[̀-ͯ]/g, ""))}">
+      <div><div class="type">${esc(e.type)}</div><div class="when">${Clock.label(e.hour)}<br>${Clock.date(e.hour)}</div></div>
+      <div>${esc(e.text)}${e.city ? `<div class="when">📍 ${esc(CITIES[e.city]?.name || "")}</div>` : ""}</div></li>`).join("");
+    return { title: "📓 Diário da investigação", body: `<ul class="timeline">${items}</ul>` };
+  },
+
+  /* ---------- Ajuda ---------- */
+  helpView() {
+    const item = (ico, t, d) => `<div class="card"><h3><span class="ico">${ico}</span>${t}</h3><p>${d}</p></div>`;
+    return { title: "? Como jogar",
+      body: `<p><b>Objetivo:</b> ajudar o agente Lula a rastrear o político fictício Flavitcho, reunir provas, emitir um mandado e capturá-lo antes que o prazo de <b>10 dias</b> (240 horas de jogo) termine.</p>
+      <div class="help-grid">
+        ${item("🔍", "Investigar a cidade", `Cada cidade tem 3 locais. Investigar um local leva ${CASE.costs.investigate}h e pode revelar pistas, documentos ou testemunhas. Um local investigado não rende informações novas.`)}
+        ${item("🗣", "Interrogar testemunhas", `Abrir um interrogatório leva ${CASE.costs.interrogate}h; depois, as perguntas são livres. Pergunte sobre aparência, viagens, empresas e transferências.`)}
+        ${item("📄", "Examinar documentos", `Extratos, auditorias e contratos revelam o caminho do dinheiro. Examinar leva ${CASE.costs.examine}h.`)}
+        ${item("🧩", "Coletar e cruzar pistas", "Pistas novas precisam ser analisadas. Use “Cruzar evidências” para confirmar uma pista quando outra a corroborar. Pistas confirmadas destacam destinos no mapa.")}
+        ${item("🗺", "Viajar", "No mapa ou na lista, escolha um destino. Quanto maior a distância, mais horas a viagem consome. Destinos errados custam tempo, mas não encerram o jogo. Se não houver tempo, a viagem é bloqueada.")}
+        ${item("⏱", "Limite de tempo", "Todas as ações consomem horas. Se o prazo acabar, Flavitcho escapa. Decifre as pistas (moeda, idioma, aeroporto, monumentos) antes de embarcar.")}
+        ${item("🗄", "Identificar Flavitcho", "No banco de dados, compare as descrições das testemunhas com as fichas. A identificação formal exige descrições suficientes e um vínculo do suspeito com as empresas. Identificar a pessoa errada custa tempo.")}
+        ${item("⚖", "Emitir o mandado", `Exige: identificação correta, ${CASE.warrantReq.financialDocs} documentos financeiros analisados, ${CASE.warrantReq.confirmedClues} evidências confirmadas e um formulário bem preenchido (crime, localização comprovada e evidências).`)}
+        ${item("🚨", "Capturar", "Com o suspeito identificado e o mandado emitido, descubra o esconderijo exato e inicie a operação de captura na cidade certa.")}
+        ${item("💾", "Salvamento", "O progresso é salvo automaticamente no navegador após cada ação. Na tela inicial, use “Continuar investigação”.")}
+        ${item("⌨", "Teclado", "Use Tab para navegar, Enter/Espaço para acionar e Esc para fechar janelas. No mapa, os marcadores também recebem foco.")}
+      </div>` };
+  },
+  creditsView() {
+    return { title: "Créditos",
+      body: `<p><b>Onde no mundo está Flavitcho?</b> — jogo original de investigação geográfica. História, personagens, ilustrações em SVG, mapa e documentos criados especialmente para este jogo.</p>
+      <p>Obra de ficção e sátira. Flavitcho, o agente Lula, as empresas, contratos, operações financeiras e acontecimentos são inventados. Não há acusação a nenhuma pessoa real nem promoção de partidos políticos.</p>
+      <h3>Fotografias (Wikimedia Commons)</h3>
+      <ul>${Object.values(CITIES).map(C => `<li>${esc(C.name)}: <a href="${esc(C.image.page)}" target="_blank" rel="noopener">${esc(C.image.alt)}</a> — ${esc(C.image.author)}, ${esc(C.image.license)}</li>`).join("")}</ul>
+      <p style="font-size:.85rem;color:var(--gray)">As fotos são carregadas da internet. Sem conexão, o jogo usa ilustrações alternativas e continua funcionando.</p>`, narrow: true };
+  },
+
+  /* ---------- Relatório final ---------- */
+  reportView() {
+    const flow = ["Contrato “Ponte da Integração” (R$ 87 mi)", "Brisa Offshore — Nova York", "Thames Meridian — Londres", "Lagosta Azul / 40 kg de ouro — Istambul", "BlockLagosta / LagostaCoin — Tel Aviv", "Kintsugi Exchange — Tóquio", "Maré Mansa Holdings / iate — Sydney"];
+    return { title: "📑 Relatório final da investigação",
+      body: `<p><b>Caso:</b> ${esc(CASE.id)} — ${esc(CASE.title)} · <b>Resultado:</b> ${state.status === "won" ? "Suspeito capturado" : "Suspeito foragido"}</p>
+      <h3>Caminho do dinheiro (fictício)</h3>
+      <div class="flow">${flow.map((n, i) => `<span class="node">${esc(n)}</span>${i < flow.length - 1 ? "➜" : ""}`).join("")}</div>
+      <h3>Cidades visitadas</h3><p>${state.visited.map(c => esc(CITIES[c].name)).join(" → ")}</p>
+      <h3>Pistas encontradas (${state.clueOrder.length})</h3>
+      <ul>${Q.foundClues().map(c => `<li><b>${esc(c.title)}</b> — ${esc(CITIES[c.city].name)} · ${esc(c.status)}</li>`).join("")}</ul>
+      <p class="fiction-note">Relatório de um caso fictício.</p>` };
+  },
+
+  /* ---------- Tela final ---------- */
+  renderEnd() {
+    UI.closeModal();
+    const win = state.status === "won";
+    const left = Clock.left();
+    const rank = Game.rank();
+    const stats = (label, v) => `<div><b>${v}</b><span>${label}</span></div>`;
+    $("#end-card").innerHTML = `
+      <div class="end-head"><div>${Art.lula(win ? "cheer" : "sad")}</div>
+        <div><h2 class="end-title ${win ? "win" : "lose"}">${win ? "Flavitcho capturado!" : "Flavitcho escapou!"}</h2>
+          <p>${win ? `Captura realizada em <b>${esc(CITIES[state.city].name)}</b>, a bordo do iate “Maré Mansa”.` : esc(state.result?.reason || "")}</p></div>
+        <div>${Art.flavitcho(win ? "caught" : "smug")}</div></div>
+      ${UI.lulaBox(win ? lulaLine("win") : lulaLine("lose"), win ? "happy" : "sad")}
+      <div class="stats">
+        ${win ? stats("Tempo restante", Clock.dur(left)) : stats("Dias utilizados", Math.ceil(state.hoursUsed / 24))}
+        ${stats("Cidades visitadas", state.visited.length)}${stats("Pistas encontradas", state.clueOrder.length)}
+        ${stats("Testemunhas interrogadas", Q.witnessesInterrogated())}${stats("Documentos analisados", Q.docsExamined())}
+        ${stats("Evidências confirmadas", Q.confirmedCount())}
+      </div>
+      ${win ? `<p class="rank">Classificação: <b>${esc(rank.title)}</b> · ${rank.score} pontos</p>
+        <p style="text-align:center">O esquema: o dinheiro da obra fictícia “Ponte da Integração” passou pela Brisa Offshore em Nova York, pelo Thames Meridian em Londres, virou ouro em Istambul, criptomoeda em Tel Aviv, ienes e depois dólares australianos em Tóquio — e terminou num iate em Sydney.</p>`
+        : `<p style="text-align:center">Progresso: ${Q.progress()}% · Mandado: ${state.warrant.issued ? "emitido" : "não emitido"} · Identificação: ${state.identifiedSuspect === CASE.culprit ? "feita" : "pendente"}.</p>`}
+      <div class="end-buttons">
+        <button class="btn btn-primary" data-action="new-case">${win ? "Iniciar novo caso" : "Tentar novamente"}</button>
+        <button class="btn" data-action="open-report">📑 Relatório final</button>
+        <button class="btn btn-ghost" data-action="to-title">⌂ Tela inicial</button>
+      </div>
+      <p class="fiction-note">O caso, os personagens e os acontecimentos narrados são fictícios.</p>`;
+    UI.show("screen-end");
+  }
+};
+
+/* Globo decorativo da tela inicial */
+function globeSVG() {
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <circle cx="50" cy="50" r="46" fill="#1f3a7a" stroke="#4fc3f7" stroke-width="1.5"/>
+    <g fill="none" stroke="#4fc3f7" stroke-width=".8" opacity=".6"><ellipse cx="50" cy="50" rx="20" ry="46"/><ellipse cx="50" cy="50" rx="38" ry="46"/><path d="M4 50H96M10 28H90M10 72H90"/></g>
+    <path d="M30 22 Q42 18 46 30 Q40 40 30 38 Q22 32 30 22 Z M54 48 Q66 44 72 54 Q68 70 58 72 Q52 62 54 48 Z M20 56 Q28 52 32 62 Q26 70 20 64 Z" fill="#43c472" opacity=".85"/></svg>`;
+}
+
+/* =====================================================================
+   CONTROLADORES DE AÇÕES (cada botão aciona uma função específica)
+   ===================================================================== */
+function afterAction() {
+  Store.save(state);
+  if (Game.checkTimeout()) return true;   // derrota já renderizada
+  Store.save(state);
+  UI.renderHub();
+  UI.refreshModal();
+  return false;
+}
+
+const Actions = {
+  "new-case"() {
+    const go = () => { UI.closeModal(); UI.lastInvestigation = null; UI.mapSel = null; UI.dbTraits = null; Game.startCase(); UI.renderBriefing(); };
+    const saved = Store.load();
+    if (saved && saved.status === "active" && (!state || state.status === "active")) confirmBox("Já existe uma investigação em andamento. Iniciar um novo caso apagará o progresso salvo. Continuar?", go);
+    else go();
+  },
+  continue() {
+    if (Game.restoreCase()) { state.status === "active" ? UI.renderHub() : UI.renderEnd(); UI.toast("Investigação restaurada.", "good"); }
+    else { UI.toast("Não foi possível ler o progresso salvo. Inicie uma nova investigação.", "bad"); UI.renderTitle(); }
+  },
+  "go-hub"() { UI.renderHub(); },
+  "to-title"() { UI.closeModal(); UI.renderTitle(); },
+  help() { UI.openModal(UI.helpView); },
+  credits() { UI.openModal(UI.creditsView, { narrow: true }); },
+  save() { UI.toast(Store.save(state) ? "Progresso salvo." : "Salvamento indisponível neste navegador.", Store.available ? "good" : "bad"); },
+  restart() {
+    confirmBox("Reiniciar a investigação? Todo o progresso salvo será apagado.", () => {
+      Store.clear(); UI.closeModal(); UI.lastInvestigation = null; UI.mapSel = null; UI.dbTraits = null;
+      Game.startCase(); UI.renderBriefing(); UI.toast("Novo caso iniciado.");
+    });
+  },
+  "close-modal"() { UI.closeModal(); },
+
+  "open-investigate"() { UI.openModal(UI.investigateView); },
+  investigate(el) {
+    const r = Game.investigateLocation(el.dataset.id);
+    if (!r) return;
+    let html;
+    if (r.already) html = UI.lulaBox(lulaLine("nothing"), "think");
+    else if (r.noTime) html = UI.lulaBox("Não temos horas suficientes para vasculhar esse local.", "sad");
+    else {
+      const trail = CASE.trail.includes(state.city);
+      const useful = r.found.some(f => f.kind !== "clue" || !CLUES[f.id].inconclusive);
+      const line = r.found.length ? (trail || useful ? lulaLine(r.found.some(f => f.kind === "doc") ? "doc" : "clue") : lulaLine("cold")) : (trail ? "Nada aqui… mas não desanime, outros locais podem render mais." : lulaLine("cold"));
+      html = `<div class="card"><h3>${r.loc.icon} ${esc(r.loc.name)}</h3><p>${esc(r.loc.text)}</p></div>
+        ${r.found.length ? `<div class="cards" style="margin-top:10px">${UI.describeFinds(r.found)}</div>` : `<p style="color:var(--gray)">Nenhuma informação útil encontrada neste local.</p>`}
+        ${UI.lulaBox(line, r.found.length && (trail || useful) ? "happy" : "think", true)}`;
+      UI.lula(line, r.found.length && (trail || useful) ? "happy" : "think");
+    }
+    UI.lastInvestigation = { city: state.city, html };
+    afterAction();
+  },
+  "open-witnesses"() { UI.openModal(UI.witnessesView); },
+  interrogate(el) {
+    const wid = el.dataset.id;
+    const r = Game.beginInterrogation(wid);
+    if (r.error) { UI.toast(r.error, "bad"); return; }
+    UI.openModal(() => UI.interrogationView(wid));
+    if (!afterAction()) { const chat = $("#chat"); if (chat) chat.scrollTop = chat.scrollHeight; }
+  },
+  ask(el) {
+    const r = Game.askQuestion(el.dataset.id, el.dataset.topic);
+    if (!r) return;
+    if (r.newClue) { UI.toast("🧩 Nova pista: " + CLUES[r.answer.clue].title, "good"); UI.lula(lulaLine("clue"), "happy"); }
+    else if (r.repeat) UI.toast("Você já fez essa pergunta. A resposta está registrada.");
+    if (!afterAction()) { const chat = $("#chat"); if (chat) chat.scrollTop = chat.scrollHeight; }
+  },
+  "open-docs"() { UI.openModal(UI.docsView); },
+  "open-doc"(el) {
+    const id = el.dataset.id;
+    const res = Game.examineDocument(id);
+    if (res && res.newClue) UI.lula(lulaLine("doc"), "happy");
+    UI.openModal(() => UI.docView(id, res));
+    afterAction();
+  },
+  "open-clues"() { UI.openModal(UI.cluesView); },
+  "clue-filter"(el) { UI.clueFilter = el.dataset.id; UI.refreshModal(); },
+  analyze(el) { Game.analyzeClue(el.dataset.id); afterAction(); },
+  confirm(el) {
+    const r = Game.confirmEvidence(el.dataset.id);
+    if (r.ok && !r.already) { UI.toast("✔ Evidência confirmada!", "good"); UI.lula("Os fatos se confirmam! Duas fontes independentes dizem a mesma coisa.", "happy"); }
+    else if (!r.ok) { UI.toast(r.msg, "bad"); UI.lula(r.msg, "think"); }
+    afterAction();
+  },
+  "open-db"() {
+    state.dbConsults++;
+    Journal.add("banco de dados", "Consulta ao banco de dados de suspeitos");
+    Store.save(state);
+    UI.openModal(UI.dbView);
+  },
+  "toggle-trait"(el) {
+    const t = el.dataset.id, s = UI.dbTraits;
+    const i = s.indexOf(t); i >= 0 ? s.splice(i, 1) : s.push(t);
+    UI.refreshModal();
+  },
+  "use-reported"() { UI.dbTraits = Q.reportedTraits(); UI.refreshModal(); },
+  identify(el) {
+    const r = Game.identifySuspect(el.dataset.id);
+    if (!r) return;
+    if (r.ok && !r.already) { UI.toast("Suspeito identificado: " + r.suspect.name, "good"); UI.lula(lulaLine("idOk"), "happy"); }
+    else if (!r.ok) {
+      const why = r.mismatch ? (r.mismatch.length ? ` Não confere com: ${r.mismatch.join(", ")}.` : " Ainda não temos descrições que o liguem ao caso.") : " Ainda falta: " + r.gaps.join(" ");
+      const msg = `As evidências ainda não são suficientes para confirmar a identidade de ${r.suspect.name}.` + why;
+      UI.toast(msg, "bad");
+      UI.lula(lulaLine("wrongId") + why, "think");
+    }
+    afterAction();
+  },
+  "open-map"() { UI.mapSel = null; UI.openModal(UI.mapView); },
+  "map-select"(el) { UI.mapSel = el.dataset.id; UI.refreshModal(); const m = document.querySelector(`.marker[data-id="${el.dataset.id}"]`); if (el.tagName === "g" && m) m.focus(); },
+  travel(el) {
+    const cid = el.dataset.id;
+    const r = Game.travelTo(cid);
+    if (r.error) { UI.toast(r.error, "bad"); return; }
+    UI.closeModal();
+    UI.lastInvestigation = null;
+    UI.lula(lulaLine("arrive"), "normal");
+    travelAnimation(r.from, cid, r.hours, () => { afterAction(); });
+  },
+  "open-warrant"() { UI.openModal(() => UI.warrantView()); },
+  "issue-warrant"() {
+    const form = {
+      crime: $("#w-crime").value, location: $("#w-loc").value,
+      evidence: [...document.querySelectorAll('input[name="w-ev"]:checked')].map(i => i.value)
+    };
+    const r = Game.issueWarrant(form);
+    if (r.ok) { UI.toast("⚖ Mandado emitido!", "gold"); UI.lula(lulaLine("warrantOk"), "happy"); UI.modal.render = () => UI.warrantView(); }
+    else {
+      UI.toast(r.penalized ? `Pedido devolvido pelo juiz (−${CASE.costs.warrantFail}h).` : "Faltam requisitos para o mandado.", "bad");
+      UI.lula(lulaLine("warrantFail"), "think");
+      const html = `<b>${r.penalized ? "O juiz devolveu o pedido:" : "Ainda não é possível pedir o mandado:"}</b><ul>${r.errors.map(e => `<li>${esc(e)}</li>`).join("")}</ul>`;
+      UI.modal.render = () => UI.warrantView({ ok: false, html });
+    }
+    afterAction();
+  },
+  capture() {
+    const r = Game.attemptCapture();
+    if (r.ok) {
+      showCaptureScene(() => Game.endCase(true, "Capturado"));
+      return;
+    }
+    UI.lula(lulaLine("captureFail") + " " + r.missing[0], "sad");
+    UI.openModal(() => ({ title: "🚨 Operação de captura abortada",
+      body: UI.lulaBox(lulaLine("captureFail"), "sad") + `<ul class="req" style="margin-top:12px">${r.missing.map(m => `<li><span class="no">✘</span><span>${esc(m)}</span></li>`).join("")}</ul>` +
+        (r.cost ? `<p style="color:var(--gray)">A mobilização da equipe consumiu ${r.cost}h.</p>` : "") }), { narrow: true });
+    afterAction();
+  },
+  "open-diary"() { UI.openModal(UI.diaryView); },
+  "open-report"() { UI.openModal(UI.reportView); }
+};
+
+/* Caixa de confirmação acessível (substitui window.confirm) */
+function confirmBox(message, onYes) {
+  UI.openModal(() => ({ title: "Confirmação", body: `<p>${esc(message)}</p>`,
+    foot: `<button class="btn" data-action="close-modal">Cancelar</button><button class="btn btn-danger" id="confirm-yes">Sim, continuar</button>` }), { narrow: true });
+  $("#confirm-yes").addEventListener("click", () => { UI.closeModal(); onYes(); });
+}
+
+/* Animação de viagem (respeita prefers-reduced-motion via CSS) */
+function travelAnimation(from, to, hours, done) {
+  const ov = document.createElement("div");
+  ov.className = "travel-overlay";
+  ov.setAttribute("role", "status");
+  ov.innerHTML = `<div style="display:flex;gap:10px;align-items:center;font-size:1.2rem"><span class="flag">${Art.flag(CITIES[from].flag)}</span>${esc(CITIES[from].name)} ➜ ${esc(CITIES[to].name)}<span class="flag">${Art.flag(CITIES[to].flag)}</span></div>
+    <div class="plane-track"><span class="plane" aria-hidden="true">✈</span></div>
+    <div>Duração do voo: <b>${hours}h</b> · ${Travel.distanceKm(from, to).toLocaleString("pt-BR")} km</div>`;
+  document.body.appendChild(ov);
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  setTimeout(() => { ov.remove(); done(); }, reduce ? 300 : 1700);
+}
+
+/* Cena curta de captura antes da tela de vitória */
+function showCaptureScene(done) {
+  const ov = document.createElement("div");
+  ov.className = "travel-overlay";
+  ov.innerHTML = `<div style="display:flex;gap:20px;align-items:flex-end;max-width:520px;width:100%"><div style="flex:1">${Art.lula("happy")}</div><div style="flex:1">${Art.flavitcho("caught")}</div></div>
+    <h2 style="margin:0;color:var(--gold)">🚨 Operação em andamento no iate “Maré Mansa”…</h2>`;
+  document.body.appendChild(ov);
+  setTimeout(() => { ov.remove(); done(); }, 1800);
+}
+
+/* =====================================================================
+   EVENTOS GLOBAIS (delegação: cada data-action chama um controlador)
+   ===================================================================== */
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-action]");
+  if (el && Actions[el.dataset.action]) {
+    if (el.tagName === "INPUT") { Actions[el.dataset.action](el); return; }
+    e.preventDefault();
+    Actions[el.dataset.action](el);
+    return;
+  }
+  // Fecha pelo fundo escuro apenas se o clique começou e terminou nele
+  if (e.target.matches("[data-backdrop]") && pointerDownTarget === e.target) UI.closeModal();
+});
+let pointerDownTarget = null;
+document.addEventListener("pointerdown", e => { pointerDownTarget = e.target; }, true);
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && UI.modal) { UI.closeModal(); return; }
+  // Marcadores do mapa (elementos SVG) respondem a Enter/Espaço
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches(".marker")) { e.preventDefault(); Actions["map-select"](e.target); }
+  // Mantém o foco dentro do modal aberto
+  if (e.key === "Tab" && UI.modal) {
+    const f = [...$("#modal-root").querySelectorAll("button,select,input,a[href],[tabindex='0']")].filter(x => !x.disabled);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+
+/* =====================================================================
+   INICIALIZAÇÃO
+   ===================================================================== */
+Store.init();
+UI.renderTitle();
+</script>
+</body>
+</html>
